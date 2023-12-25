@@ -1,4 +1,4 @@
-package main.java;
+package com.polynomials;
 import java.util.*;
 
 public class Polynomial {
@@ -15,6 +15,10 @@ public class Polynomial {
     private Polynomial clean() {
         pow_cof.values().removeIf(v -> v == 0);
         return this;
+    }
+
+    public HashMap<Integer, Integer> getMap() {
+        return pow_cof;
     }
 
     public Integer degree() {

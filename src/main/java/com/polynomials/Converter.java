@@ -1,4 +1,4 @@
-package main.java;
+package com.polynomials;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
