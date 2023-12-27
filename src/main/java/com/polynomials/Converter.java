@@ -10,4 +10,9 @@ public class Converter {
                 .boxed()
                 .collect(Collectors.toMap(domain::get, range::get)));
     }
+
+    public static HashMap<Integer, Integer> deepCopy(HashMap<Integer, Integer> mapToCopy) {
+        return (HashMap<Integer, Integer>) mapToCopy.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+    }
 }
