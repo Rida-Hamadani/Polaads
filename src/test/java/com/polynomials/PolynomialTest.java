@@ -2,6 +2,7 @@ package com.polynomials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
+
 import org.junit.jupiter.api.BeforeEach;
 import java.util.*;
 
@@ -70,13 +71,36 @@ public class PolynomialTest {
             }
         };
 
-        assertEquals(p1.plus(p2).getMap(), resMap1);
-        assertEquals(p1.getMap(), p4.plus(p1).getMap());
-        assertEquals(p3.plus(p4).getMap(), resMap2);
+        assertEquals(p1.add(p2).getMap(), resMap1);
+        assertEquals(p1.getMap(), p4.add(p1).getMap());
+        assertEquals(p3.add(p4).getMap(), resMap2);
     }
 
     @Test
-    public void testTimesScalar() {
+    public void testSubtract() {
+        HashMap<Integer, Integer> resMap = new HashMap<Integer, Integer>() {
+            {
+                put(1, -1);
+                put(2, 1);
+            }
+        };
+        HashMap<Integer, Integer> resMap2 = new HashMap<Integer, Integer>() {
+            {
+                put(0, -4);
+                put(1, -1);
+                put(2, -2);
+                put(4, -3);
+                put(6, -8);
+            }
+        };
+
+        assertEquals(p2.subtract(p1).getMap(), resMap);
+        assertEquals(p1.subtract(p1).getMap(), p4.getMap());
+        assertEquals(p5.subtract(p3).getMap(), resMap2);
+    }
+
+    @Test
+    public void testMultiplicationScalar() {
         HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
             {
                 put(1, 10);
@@ -97,10 +121,10 @@ public class PolynomialTest {
             }
         };
 
-        p1.times(10);
-        p2.times(0);
-        p3.times(2);
-        p5.times(1);
+        p1.multiply(10);
+        p2.multiply(0);
+        p3.multiply(2);
+        p5.multiply(1);
 
         assertEquals(p1.getMap(), resMap1);
         assertEquals(p2.getMap(), p4.getMap());
@@ -109,7 +133,7 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testTimesPolynomial() {
+    public void testMultiplicationPolynomial() {
         HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
             {
                 put(2, 5);
@@ -119,12 +143,68 @@ public class PolynomialTest {
                 put(8, 8);
             }
         };
-        p1.times(p4);
-        p3.times(p2);
+        p1.multiply(p4);
+        p3.multiply(p2);
 
         assertEquals(p1.getMap(), p4.getMap());
         assertEquals(p3.getMap(), resMap1);
-        assertEquals(p3.times(p5).getMap(), resMap1);
+        assertEquals(p3.multiply(p5).getMap(), resMap1);
+    }
+
+    @Test
+    public void testDivision() {
+        HashMap<Integer, Integer> divMap = new HashMap<Integer, Integer>() {
+            {
+                put(0, 13);
+                put(1, -11);
+                put(2, 11);
+                put(3, -8);
+                put(4, 8);
+            }
+        };
+        HashMap<Integer, Integer> remMap = new HashMap<Integer, Integer>() {
+            {
+                put(0, 5);
+                put(1, -12);
+            }
+        };
+
+        Polynomial.DivisionResult dr1 = p3.divide(p2.add(p1));
+        assertEquals(dr1.getDivisor().getMap(), divMap);
+        assertEquals(dr1.getRemainder().getMap(), remMap);
+
+        Polynomial.DivisionResult dr2 = p2.divide(p1);
+        assertEquals(dr2.getDivisor().getMap(), p1.add(p5).getMap());
+        assertEquals(dr2.getRemainder().getMap(), p4.getMap());
+
+        Polynomial.DivisionResult dr3 = p1.divide(p1);
+        assertEquals(dr3.getDivisor().getMap(), p5.getMap());
+        assertEquals(dr3.getRemainder().getMap(), p4.getMap());
+
+        Polynomial.DivisionResult dr4 = p4.divide(p4);
+        assertEquals(dr4.getDivisor().getMap(), p4.getMap());
+        assertEquals(dr4.getRemainder().getMap(), p4.getMap());
+
+        // test exceptions
+        try {
+            p1.divide(p4);
+            assertEquals(1, 0);
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot divide by zero.", e.getMessage());
+        }
+        try {
+            p4.divide(p1);
+            assertEquals(1, 0);
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot divide by larger polynomial.", e.getMessage());
+        }
+        try {
+            p3.divide(new Polynomial(remMap));
+            assertEquals(1, 0);
+        } catch (IllegalArgumentException e) {
+            assertEquals("The leading coefficient of the polynomial should be divisible by that of the divisor.",
+                    e.getMessage());
+        }
     }
 
     @Test

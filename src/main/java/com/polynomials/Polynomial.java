@@ -46,17 +46,24 @@ public class Polynomial {
                 : Collections.max(pow_cof.keySet());
     }
 
-    public Polynomial plus(Polynomial that) {
+    public Polynomial add(Polynomial that) {
         that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, (a, b) -> a + b));
         return clean();
     }
 
-    public Polynomial times(Integer scalar) {
+    public Polynomial subtract(Polynomial that) {
+        if (equals(that)) return new Polynomial();
+        add(that.multiply(-1));
+        that.multiply(-1); // so that isn't mutated
+        return clean();
+    }
+
+    public Polynomial multiply(Integer scalar) {
         pow_cof.forEach((k, v) -> pow_cof.put(k, scalar * v));
         return clean();
     }
 
-    public Polynomial times(Polynomial that) {
+    public Polynomial multiply(Polynomial that) {
         HashMap<Integer, Integer> product = new HashMap<>();
         that.pow_cof.forEach((k1, v1) -> pow_cof.forEach((k2, v2) -> product.merge(k1 + k2, v1 * v2, (a, b) -> a + b)));
         return setMap(product).clean();
@@ -75,27 +82,26 @@ public class Polynomial {
                     }
                 };
 
-        if (that.pow_cof == zero)
+        if (that.pow_cof.equals(zero)) {
+            if (pow_cof.equals(zero)) return new DivisionResult(zero, zero);
             throw new IllegalArgumentException("Cannot divide by zero.");
+        }
         if (deg1 < deg2)
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
-        if (pow_cof.get(deg1) % pow_cof.get(deg2) != 0)
-            throw new IllegalArgumentException("The leading coefficient of the polynomial should be divisible by that of the dividor.");
-        
+        if (pow_cof.get(deg1) % that.pow_cof.get(deg2) != 0)
+            throw new IllegalArgumentException("The leading coefficient of the polynomial should be divisible by that of the divisor.");
+
         for (int i = divisorDegree; i > -1; --i) {
-            divisorMap.put(i, tempMap.getOrDefault(i + deg2, 0)/that.pow_cof.getOrDefault(deg2, 0));
+            divisorMap.put(i, tempMap.getOrDefault(i + deg2, 0) / that.pow_cof.getOrDefault(deg2, 0));
             for (int j = deg2 + i - 1; j > i - 1; --j) {
-                tempMap.put(j, tempMap.getOrDefault(j, 0) - divisorMap.get(i) * that.pow_cof.getOrDefault(j-i, 0));
+                tempMap.put(j, tempMap.getOrDefault(j, 0) - divisorMap.get(i) * that.pow_cof.getOrDefault(j - i, 0));
             }
         }
         for (int i = 0; i < deg2; ++i) {
-            remainderMap.put(i, tempMap.getOrDefault(i, 0));    
+            remainderMap.put(i, tempMap.getOrDefault(i, 0));
         }
 
-        DivisionResult dr = new DivisionResult();
-        dr.Divisor = new Polynomial(divisorMap).clean();
-        dr.Remainder = new Polynomial(remainderMap).clean();
-        return dr;
+        return new DivisionResult(divisorMap, remainderMap);
     }
 
     @Override
@@ -117,9 +123,22 @@ public class Polynomial {
         return sj.toString();
     }
 
-    private class DivisionResult {
-        public Polynomial Divisor;
-        public Polynomial Remainder;
+    public class DivisionResult {
+        private Polynomial divisor;
+        private Polynomial remainder;
+        
+        public DivisionResult(HashMap<Integer, Integer> divisorMap, HashMap<Integer, Integer> remainderMap) {
+            this.divisor = new Polynomial(divisorMap).clean();
+            this.remainder = new Polynomial(remainderMap).clean();
+        }
+
+        public Polynomial getDivisor() {
+            return divisor;
+        }
+
+        public Polynomial getRemainder() {
+            return remainder;
+        }
     }
 
 }

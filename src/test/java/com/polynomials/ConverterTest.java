@@ -9,7 +9,7 @@ public class ConverterTest extends Converter {
 
     ArrayList<Integer> list1 = null;
     ArrayList<Integer> list2 = null;
-    Map<Integer, Integer> map = null;
+    HashMap<Integer, Integer> map = null;
 
     @BeforeEach
     public void generateData() {
@@ -28,4 +28,8 @@ public class ConverterTest extends Converter {
         assertEquals(Converter.connect(list1, list2), map);
     }
 
+    @Test
+    public void testDeepCopy() {
+        assertEquals(map, Converter.deepCopy(map));
+    }
 }
