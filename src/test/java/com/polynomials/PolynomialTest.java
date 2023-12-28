@@ -170,22 +170,28 @@ public class PolynomialTest {
         };
 
         Polynomial.DivisionResult dr1 = p3.divide(p2.add(p1));
-        assertEquals(dr1.getQuotient().getMap(), divMap);
-        assertEquals(dr1.getRemainder().getMap(), remMap);
-
         Polynomial.DivisionResult dr2 = p2.divide(p1);
-        assertEquals(dr2.getQuotient().getMap(), p1.add(p5).getMap());
-        assertEquals(dr2.getRemainder().getMap(), p4.getMap());
-
         Polynomial.DivisionResult dr3 = p1.divide(p1);
-        assertEquals(dr3.getQuotient().getMap(), p5.getMap());
-        assertEquals(dr3.getRemainder().getMap(), p4.getMap());
-
         Polynomial.DivisionResult dr4 = p4.divide(p4);
-        assertEquals(dr4.getQuotient().getMap(), p4.getMap());
-        assertEquals(dr4.getRemainder().getMap(), p4.getMap());
 
-        // test exceptions
+        assertEquals(dr1.getMap(), divMap);
+        assertEquals(dr1.getRemainder().getMap(), remMap);
+        assertEquals(dr2.getMap(), p1.add(p5).getMap());
+        assertEquals(dr2.getRemainder().getMap(), p4.getMap());
+        assertEquals(dr3.getMap(), p5.getMap());
+        assertEquals(dr3.getRemainder().getMap(), p4.getMap());
+        assertEquals(dr4.getMap(), p4.getMap());
+        assertEquals(dr4.getRemainder().getMap(), p4.getMap());
+    }
+
+    @Test
+    public void testDivisionExceptions() {
+        HashMap<Integer, Integer> remMap = new HashMap<Integer, Integer>() {
+            {
+                put(0, 5);
+                put(1, -12);
+            }
+        };
         try {
             p1.divide(p4);
             assertEquals(1, 0);
