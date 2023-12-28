@@ -72,8 +72,8 @@ public class Polynomial {
     public DivisionResult divide(Polynomial that) {
         Integer deg1 = getDegree(),
                 deg2 = that.getDegree(),
-                divisorDegree = deg1 - deg2;
-        HashMap<Integer, Integer> divisorMap = new HashMap<>(),
+                quotientDegree = deg1 - deg2;
+        HashMap<Integer, Integer> quotientMap = new HashMap<>(),
                 remainderMap = new HashMap<>(),
                 tempMap = Converter.deepCopy(pow_cof),
                 zero = new HashMap<>() {
@@ -89,19 +89,19 @@ public class Polynomial {
         if (deg1 < deg2)
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
         if (pow_cof.get(deg1) % that.pow_cof.get(deg2) != 0)
-            throw new IllegalArgumentException("The leading coefficient of the polynomial should be divisible by that of the divisor.");
+            throw new IllegalArgumentException("The leading coefficient of the dividend should be divisible by that of the divisor.");
 
-        for (int i = divisorDegree; i > -1; --i) {
-            divisorMap.put(i, tempMap.getOrDefault(i + deg2, 0) / that.pow_cof.getOrDefault(deg2, 0));
+        for (int i = quotientDegree; i > -1; --i) {
+            quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0) / that.pow_cof.getOrDefault(deg2, 0));
             for (int j = deg2 + i - 1; j > i - 1; --j) {
-                tempMap.put(j, tempMap.getOrDefault(j, 0) - divisorMap.get(i) * that.pow_cof.getOrDefault(j - i, 0));
+                tempMap.put(j, tempMap.getOrDefault(j, 0) - quotientMap.get(i) * that.pow_cof.getOrDefault(j - i, 0));
             }
         }
         for (int i = 0; i < deg2; ++i) {
             remainderMap.put(i, tempMap.getOrDefault(i, 0));
         }
 
-        return new DivisionResult(divisorMap, remainderMap);
+        return new DivisionResult(quotientMap, remainderMap);
     }
 
     @Override
@@ -124,16 +124,16 @@ public class Polynomial {
     }
 
     public class DivisionResult {
-        private Polynomial divisor;
+        private Polynomial quotient;
         private Polynomial remainder;
         
-        public DivisionResult(HashMap<Integer, Integer> divisorMap, HashMap<Integer, Integer> remainderMap) {
-            this.divisor = new Polynomial(divisorMap).clean();
+        public DivisionResult(HashMap<Integer, Integer> quotientMap, HashMap<Integer, Integer> remainderMap) {
+            this.quotient = new Polynomial(quotientMap).clean();
             this.remainder = new Polynomial(remainderMap).clean();
         }
 
-        public Polynomial getDivisor() {
-            return divisor;
+        public Polynomial getQuotient() {
+            return quotient;
         }
 
         public Polynomial getRemainder() {
