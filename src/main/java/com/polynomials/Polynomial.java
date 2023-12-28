@@ -123,22 +123,16 @@ public class Polynomial {
         return sj.toString();
     }
 
-    public class DivisionResult {
-        private Polynomial quotient;
+    public class DivisionResult extends Polynomial{
         private Polynomial remainder;
         
         public DivisionResult(HashMap<Integer, Integer> quotientMap, HashMap<Integer, Integer> remainderMap) {
-            this.quotient = new Polynomial(quotientMap).clean();
+            super(quotientMap);
             this.remainder = new Polynomial(remainderMap).clean();
-        }
-
-        public Polynomial getQuotient() {
-            return quotient;
         }
 
         public Polynomial getRemainder() {
             return remainder;
         }
     }
-
 }
