@@ -4,6 +4,11 @@ import java.util.*;
 
 public class Polynomial {
     private HashMap<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
+    private final HashMap<Integer, Integer> zero = new HashMap<>() {
+        {
+            put(0, 0);
+        }
+    };
 
     public Polynomial() {
         this.pow_cof = new HashMap<>();
@@ -36,18 +41,29 @@ public class Polynomial {
 
     public Integer getDegree() {
         clean();
-        HashMap<Integer, Integer> zero = new HashMap<>() {
-            {
-                put(0, 0);
-            }
-        };
         return pow_cof.equals(zero)
                 ? Integer.MIN_VALUE
                 : Collections.max(pow_cof.keySet());
     }
 
+    public Integer getContent() {
+        if (zero.equals(pow_cof))
+            return 0;
+        int sign = pow_cof.get(getDegree()) > 0 ? 1 : -1;
+        return sign * NumberTheory.gcd(new ArrayList<>(pow_cof.values()));
+    }
+
+    public Polynomial getPrimitive() {
+        if (zero.equals(pow_cof)) {
+            return new Polynomial();
+        }
+        Polynomial primitive = new Polynomial(Converter.deepCopy(pow_cof));
+        primitive.divide(getContent());
+        return primitive;
+    }
+
     public Boolean isPrimitive() {
-        return Math.abs(NumberTheory.gcd(new ArrayList<>(pow_cof.values()))) == 1;
+        return Math.abs(getContent()) == 1;
     }
 
     public Polynomial add(Polynomial that) {
@@ -80,10 +96,11 @@ public class Polynomial {
         }
         pow_cof.forEach((k, v) -> {
             if (v % scalar != 0) {
-                throw new IllegalArgumentException(scalar + " doesn't divide all the coefficients of " + toString() + ".");
+                throw new IllegalArgumentException(
+                        scalar + " doesn't divide all the coefficients of " + toString() + ".");
             }
         });
-        pow_cof.forEach((k, v) -> pow_cof.put(k,  v / scalar));
+        pow_cof.forEach((k, v) -> pow_cof.put(k, v / scalar));
         return this.clean();
     }
 
@@ -93,12 +110,7 @@ public class Polynomial {
                 quotientDegree = deg1 - deg2;
         HashMap<Integer, Integer> quotientMap = new HashMap<>(),
                 remainderMap = new HashMap<>(),
-                tempMap = Converter.deepCopy(pow_cof),
-                zero = new HashMap<>() {
-                    {
-                        put(0, 0);
-                    }
-                };
+                tempMap = Converter.deepCopy(pow_cof);
 
         if (that.pow_cof.equals(zero)) {
             if (pow_cof.equals(zero)) {

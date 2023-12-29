@@ -57,6 +57,29 @@ public class PolynomialTest {
     }
 
     @Test
+    public void testGetContent() {
+        assertEquals(p4.getContent(), 0);
+        assertEquals(p1.multiply(2).getContent(), 2);
+    }
+
+    @Test
+    public void testGetPrimitive() {
+        HashMap<Integer, Integer> resMap1 = Converter.deepCopy(p1.getMap());
+        assertEquals(p4.getPrimitive().getMap(), new Polynomial().getMap());
+        assertEquals(p1.multiply(2).getPrimitive().getMap(), resMap1);
+    }
+
+    @Test
+    public void testIsPrimitive() {
+        assertTrue(p1.isPrimitive());
+        assertTrue(p2.isPrimitive());
+        assertTrue(p3.isPrimitive());
+        assertFalse(p4.isPrimitive());
+        assertTrue(p5.isPrimitive());
+        assertFalse(p1.add(p2).multiply(2).isPrimitive());
+    }
+
+    @Test
     public void testAddition() {
         HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
             {
@@ -191,16 +214,6 @@ public class PolynomialTest {
         assertEquals(dr3.getRemainder().getMap(), p4.getMap());
         assertEquals(dr4.getMap(), p4.getMap());
         assertEquals(dr4.getRemainder().getMap(), p4.getMap());
-    }
-
-    @Test
-    public void testIsPrimitive() {
-        assertTrue(p1.isPrimitive());
-        assertTrue(p2.isPrimitive());
-        assertTrue(p3.isPrimitive());
-        assertFalse(p4.isPrimitive());
-        assertTrue(p5.isPrimitive());
-        assertFalse(p1.add(p2).multiply(2).isPrimitive());
     }
 
     @Test
