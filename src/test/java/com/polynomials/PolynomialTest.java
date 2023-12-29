@@ -216,9 +216,14 @@ public class PolynomialTest {
     @Test
     public void testToString() {
         assertEquals(p1.toString(), "x");
+        assertEquals(p1.multiply(-1).toString(), "- x");
         assertEquals(p2.toString(), "x^2");
+        assertEquals(p2.multiply(-1).toString(), "- x^2");
         assertEquals(p3.toString(), "5 + x + 2x^2 + 3x^4 + 8x^6");
+        assertEquals(p3.multiply(-1).toString(), "- 5 - x - 2x^2 - 3x^4 - 8x^6");
         assertEquals(p4.toString(), "0");
+        assertEquals(p4.multiply(-1).toString(), "0");
         assertEquals(p5.toString(), "1");
+        assertEquals(p5.multiply(-1).toString(), "- 1");
     }
 }

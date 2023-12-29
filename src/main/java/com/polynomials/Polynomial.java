@@ -2,6 +2,8 @@ package com.polynomials;
 
 import java.util.*;
 
+import com.polynomials.Polynomial.DivisionResult;
+
 public class Polynomial {
     private HashMap<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
 
@@ -52,7 +54,8 @@ public class Polynomial {
     }
 
     public Polynomial subtract(Polynomial that) {
-        if (equals(that)) return new Polynomial();
+        if (equals(that))
+            return new Polynomial();
         add(that.multiply(-1));
         that.multiply(-1); // so that isn't mutated
         return clean();
@@ -83,13 +86,15 @@ public class Polynomial {
                 };
 
         if (that.pow_cof.equals(zero)) {
-            if (pow_cof.equals(zero)) return new DivisionResult(zero, zero);
+            if (pow_cof.equals(zero))
+                return new DivisionResult(zero, zero);
             throw new IllegalArgumentException("Cannot divide by zero.");
         }
         if (deg1 < deg2)
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
         if (pow_cof.get(deg1) % that.pow_cof.get(deg2) != 0)
-            throw new IllegalArgumentException("The leading coefficient of the dividend should be divisible by that of the divisor.");
+            throw new IllegalArgumentException(
+                    "The leading coefficient of the dividend should be divisible by that of the divisor.");
 
         for (int i = quotientDegree; i > -1; --i) {
             quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0) / that.pow_cof.getOrDefault(deg2, 0));
@@ -105,27 +110,36 @@ public class Polynomial {
     }
 
     @Override
-    public String toString() {
+    public String toString() { // i have to edit this to handle negative numbers correctly
         TreeMap<Integer, Integer> sorted = new TreeMap<>();
-        StringJoiner sj = new StringJoiner(" + ");
+        StringJoiner sj = new StringJoiner(" ");
+
         sorted.putAll(clean().pow_cof);
         sorted.forEach((k, v) -> {
             StringBuilder sb = new StringBuilder(4);
-            if (v != 1 || k == 0)
-                sb.append(v);
+
+            if (sj.length() > 0 || v < 0 && v != 0) {
+                sj.add(v > 0 ? "+" : "-");
+            }
+            if (v != 1 && v != -1 || k == 0) {
+                sb.append(Math.abs(v));
+            }
             if (k != 0) {
                 sb.append('x');
-                if (k != 1)
+                if (k != 1) {
                     sb.append('^').append(k);
+                }
             }
+            
             sj.add(sb.toString());
         });
+
         return sj.toString();
     }
 
-    public class DivisionResult extends Polynomial{
+    public class DivisionResult extends Polynomial {
         private Polynomial remainder;
-        
+
         public DivisionResult(HashMap<Integer, Integer> quotientMap, HashMap<Integer, Integer> remainderMap) {
             super(quotientMap);
             this.remainder = new Polynomial(remainderMap).clean();
