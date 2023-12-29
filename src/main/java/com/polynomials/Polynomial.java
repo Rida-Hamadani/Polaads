@@ -130,7 +130,6 @@ public class Polynomial {
                     sb.append('^').append(k);
                 }
             }
-            
             sj.add(sb.toString());
         });
 
