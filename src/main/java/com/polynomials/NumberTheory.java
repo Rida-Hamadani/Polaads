@@ -11,8 +11,9 @@ public class NumberTheory {
     }
 
     public static int gcd(int a, int b) {
+        int c;
         while (b != 0) {
-            int c = b;
+            c = b;
             b = a % b;
             a = c;
         }

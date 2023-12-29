@@ -2,8 +2,6 @@ package com.polynomials;
 
 import java.util.*;
 
-import com.polynomials.Polynomial.DivisionResult;
-
 public class Polynomial {
     private HashMap<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
 
@@ -28,7 +26,7 @@ public class Polynomial {
     }
 
     public HashMap<Integer, Integer> getMap() {
-        return pow_cof;
+        return clean().pow_cof;
     }
 
     public Polynomial setMap(HashMap<Integer, Integer> newMap) {
@@ -51,7 +49,7 @@ public class Polynomial {
     public Boolean isPrimitive() {
         return Math.abs(NumberTheory.gcd(new ArrayList<>(pow_cof.values()))) == 1;
     }
-    
+
     public Polynomial add(Polynomial that) {
         that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, (a, b) -> a + b));
         return clean();
@@ -76,6 +74,19 @@ public class Polynomial {
         return setMap(product).clean();
     }
 
+    public Polynomial divide(Integer scalar) {
+        if (scalar == 0) {
+            throw new IllegalArgumentException("Cannot divide by zero.");
+        }
+        pow_cof.forEach((k, v) -> {
+            if (v % scalar != 0) {
+                throw new IllegalArgumentException(scalar + " doesn't divide all the coefficients of " + toString() + ".");
+            }
+        });
+        pow_cof.forEach((k, v) -> pow_cof.put(k,  v / scalar));
+        return this.clean();
+    }
+
     public DivisionResult divide(Polynomial that) {
         Integer deg1 = getDegree(),
                 deg2 = that.getDegree(),
@@ -90,16 +101,18 @@ public class Polynomial {
                 };
 
         if (that.pow_cof.equals(zero)) {
-            if (pow_cof.equals(zero))
+            if (pow_cof.equals(zero)) {
                 return new DivisionResult(zero, zero);
+            }
             throw new IllegalArgumentException("Cannot divide by zero.");
         }
-        if (deg1 < deg2)
+        if (deg1 < deg2) {
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
-        if (pow_cof.get(deg1) % that.pow_cof.get(deg2) != 0)
+        }
+        if (pow_cof.get(deg1) % that.pow_cof.get(deg2) != 0) {
             throw new IllegalArgumentException(
                     "The leading coefficient of the dividend should be divisible by that of the divisor.");
-
+        }
         for (int i = quotientDegree; i > -1; --i) {
             quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0) / that.pow_cof.getOrDefault(deg2, 0));
             for (int j = deg2 + i - 1; j > i - 1; --j) {
@@ -114,7 +127,7 @@ public class Polynomial {
     }
 
     @Override
-    public String toString() { // i have to edit this to handle negative numbers correctly
+    public String toString() {
         TreeMap<Integer, Integer> sorted = new TreeMap<>();
         StringJoiner sj = new StringJoiner(" ");
 

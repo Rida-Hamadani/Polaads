@@ -103,7 +103,7 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testMultiplicationScalar() {
+    public void testScalarMultiplication() {
         HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
             {
                 put(1, 10);
@@ -136,7 +136,7 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testMultiplicationPolynomial() {
+    public void testPolynomialMultiplication() {
         HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
             {
                 put(2, 5);
@@ -155,7 +155,13 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testDivision() {
+    public void testScalarDivision() {
+        HashMap<Integer, Integer> resMap1 = Converter.deepCopy(p1.getMap());
+        assertEquals(p1.divide(1).getMap(), resMap1);
+    }
+
+    @Test
+    public void testPolynomialDivision() {
         HashMap<Integer, Integer> divMap = new HashMap<Integer, Integer>() {
             {
                 put(0, 13);
@@ -198,7 +204,23 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testDivisionExceptions() {
+    public void testScalarDivisionExceptions() {
+        try {
+            p1.divide(0);
+            assertEquals(1, 0);
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot divide by zero.", e.getMessage());
+        }
+        try {
+            p1.divide(3);
+            assertEquals(1, 0);
+        } catch (IllegalArgumentException e) {
+            assertEquals("3 doesn't divide all the coefficients of x.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPolynomialDivisionExceptions() {
         HashMap<Integer, Integer> remMap = new HashMap<Integer, Integer>() {
             {
                 put(0, 5);
