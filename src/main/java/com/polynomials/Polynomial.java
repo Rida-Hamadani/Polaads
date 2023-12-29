@@ -48,6 +48,10 @@ public class Polynomial {
                 : Collections.max(pow_cof.keySet());
     }
 
+    public Boolean isPrimitive() {
+        return Math.abs(NumberTheory.gcd(new ArrayList<>(pow_cof.values()))) == 1;
+    }
+    
     public Polynomial add(Polynomial that) {
         that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, (a, b) -> a + b));
         return clean();

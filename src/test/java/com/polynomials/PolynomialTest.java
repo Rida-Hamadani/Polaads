@@ -1,6 +1,9 @@
 package com.polynomials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -182,6 +185,16 @@ public class PolynomialTest {
         assertEquals(dr3.getRemainder().getMap(), p4.getMap());
         assertEquals(dr4.getMap(), p4.getMap());
         assertEquals(dr4.getRemainder().getMap(), p4.getMap());
+    }
+
+    @Test
+    public void testIsPrimitive() {
+        assertTrue(p1.isPrimitive());
+        assertTrue(p2.isPrimitive());
+        assertTrue(p3.isPrimitive());
+        assertFalse(p4.isPrimitive());
+        assertTrue(p5.isPrimitive());
+        assertFalse(p1.add(p2).multiply(2).isPrimitive());
     }
 
     @Test
