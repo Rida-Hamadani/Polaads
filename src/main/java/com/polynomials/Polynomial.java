@@ -138,6 +138,20 @@ public class Polynomial {
         return new DivisionResult(quotientMap, remainderMap);
     }
 
+    public Polynomial gcd(Polynomial that) {
+        DivisionResult copyThat = new DivisionResult(Converter.deepCopy(that.pow_cof)); // so that isn't mutate
+        Polynomial temp = new Polynomial();
+
+        while (!copyThat.getMap().equals(zero)) {
+            System.out.println(that.getMap());
+            temp.setMap(copyThat.getMap());
+            copyThat = new DivisionResult(divide(that).getRemainder().getMap());
+            System.out.println(that.getMap());
+            setMap(temp.getMap());
+        }
+        return this;
+    }
+
     @Override
     public String toString() {
         TreeMap<Integer, Integer> sorted = new TreeMap<>();
@@ -167,6 +181,10 @@ public class Polynomial {
 
     public class DivisionResult extends Polynomial {
         private Polynomial remainder;
+
+        public DivisionResult(HashMap<Integer, Integer> quotientMap) {
+            super(quotientMap);
+        }
 
         public DivisionResult(HashMap<Integer, Integer> quotientMap, HashMap<Integer, Integer> remainderMap) {
             super(quotientMap);

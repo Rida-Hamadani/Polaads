@@ -262,6 +262,14 @@ public class PolynomialTest {
     }
 
     @Test
+    public void testGcd() {
+        HashMap<Integer, Integer> res1 = Converter.deepCopy(p1.getMap());
+        assertEquals(p1.gcd(p4).getMap(), res1);
+        assertEquals(p2.gcd(p1).getMap(), p1.getMap());
+        assertEquals(p2.multiply(p2).subtract(p5).gcd(p1.add(p5)).getMap(), p1.getMap()) ;
+    }
+
+    @Test
     public void testToString() {
         assertEquals(p1.toString(), "x");
         assertEquals(p1.multiply(-1).toString(), "- x");
