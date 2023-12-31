@@ -84,10 +84,10 @@ public class Polynomial {
         return Math.abs(getContent()) == 1;
     }
 
-    public Boolean isSquareFree() {
-        Polynomial der = getDerivative();
-        return der.gcd(this).getMap().equals(one);
-    }
+    // public Boolean isSquareFree() {
+    //     Polynomial der = getDerivative();
+    //     return der.gcd(this).getMap().equals(one);
+    // }
 
     public Polynomial add(Polynomial that) {
         that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, (a, b) -> a + b));
@@ -170,6 +170,9 @@ public class Polynomial {
                 deg2 = that.getDegree(),
                 quotientDegree = deg1 - deg2;
 
+        if (pow_cof.equals(zero)) {
+            return new DivisionResult(zero, zero);
+        }
         if (that.pow_cof.equals(zero)) {
             throw new IllegalArgumentException("Cannot divide by zero.");
         }
@@ -180,9 +183,10 @@ public class Polynomial {
         for (int i = quotientDegree; i > -1; --i) {
             quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0)
                     * NumberTheory.power(that.pow_cof.getOrDefault(deg2, 0), i));
-            for (int j = deg2 + i - 1; j > i - 1; --j) {
+            for (int j = deg2 + i - 1; j > - 1; --j) {
                 tempMap.put(j, that.pow_cof.get(deg2) * tempMap.getOrDefault(j, 0)
-                        - quotientMap.getOrDefault(i + deg2, 0) * that.pow_cof.getOrDefault(j - i, 0));
+                        - tempMap.getOrDefault(i + deg2, 0) * that.pow_cof.getOrDefault(j - i, 0));
+                System.out.println(tempMap.toString());
             }
         }
         for (int i = 0; i < deg2; ++i) {
@@ -192,52 +196,52 @@ public class Polynomial {
         return new DivisionResult(quotientMap, remainderMap);
     }
 
-    public Polynomial gcd(Polynomial that) {
+    // public Polynomial gcd(Polynomial that) {
 
-        DivisionResult copyThat = new DivisionResult(Converter.deepCopy(that.pow_cof));
-        Polynomial temp = new Polynomial();
-        Integer d = NumberTheory.gcd(getContent(), that.getContent()),
-                g = 1,
-                h = 1,
-                delta;
+    //     DivisionResult copyThat = new DivisionResult(Converter.deepCopy(that.pow_cof));
+    //     Polynomial temp = new Polynomial();
+    //     Integer d = NumberTheory.gcd(getContent(), that.getContent()),
+    //             g = 1,
+    //             h = 1,
+    //             delta;
 
-        this.setMap(getPrimitive().getMap());
-        copyThat.setMap(that.getPrimitive().getMap());
+    //     this.setMap(getPrimitive().getMap());
+    //     copyThat.setMap(that.getPrimitive().getMap());
 
-        if (getDegree() - that.getDegree() > 0) {
-            this.setMap(copyThat.gcd(this).getMap());
-            return this;
-        }
+    //     if (getDegree() - that.getDegree() > 0) {
+    //         this.setMap(copyThat.gcd(this).getMap());
+    //         return this;
+    //     }
 
-        for (;;) {
+    //     for (;;) {
 
-            delta = getDegree() - that.getDegree();
+    //         delta = getDegree() - that.getDegree();
 
-            temp.setMap(Converter.deepCopy(copyThat.getMap())); // so thatCopy isn't changed during division
-            System.out.println(this);
-            System.out.println(that);
-            Polynomial remainder = temp.pseudoDivide(this).getRemainder();
+    //         temp.setMap(Converter.deepCopy(copyThat.getMap())); // so thatCopy isn't changed during division
+    //         System.out.println(this);
+    //         System.out.println(that);
+    //         Polynomial remainder = temp.pseudoDivide(this).getRemainder();
 
-            if (remainder.getMap().equals(zero)) {
-                break;
-            }
-            if (remainder.getDegree() == 0) {
-                copyThat.setMap(one);
-                break;
-            }
+    //         if (remainder.getMap().equals(zero)) {
+    //             break;
+    //         }
+    //         if (remainder.getDegree() == 0) {
+    //             copyThat.setMap(one);
+    //             break;
+    //         }
 
-            setMap(copyThat.getMap());
-            copyThat.setMap(remainder.divide(g * NumberTheory.power(h, delta)).getMap());
-            g = pow_cof.get(getDegree());
-            int oldh = h;
-            h = NumberTheory.power(g, delta);
-            for (int c = 0; c < delta; ++c) {
-                h /= oldh;
-            }
-        }
+    //         setMap(copyThat.getMap());
+    //         copyThat.setMap(remainder.divide(g * NumberTheory.power(h, delta)).getMap());
+    //         g = pow_cof.get(getDegree());
+    //         int oldh = h;
+    //         h = NumberTheory.power(g, delta);
+    //         for (int c = 0; c < delta; ++c) {
+    //             h /= oldh;
+    //         }
+    //     }
 
-        return copyThat.getPrimitive().multiply(d);
-    }
+    //     return copyThat.getPrimitive().multiply(d);
+    // }
 
     @Override
     public String toString() {
