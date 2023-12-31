@@ -19,4 +19,14 @@ public class NumberTheory {
         }
         return a;
     }
+
+    public static int power(int a, int b) {
+        int pow = 1;
+
+        for (int c = 0; c < b; ++c) {
+            pow *= a;
+        }
+
+        return pow;
+    }
 }
