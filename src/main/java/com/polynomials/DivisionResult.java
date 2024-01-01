@@ -5,11 +5,11 @@ import java.util.*;
 public class DivisionResult extends Polynomial {
     private Polynomial remainder;
 
-    public DivisionResult(HashMap<Integer, Integer> quotientMap) {
+    public DivisionResult(Map<Integer, Integer> quotientMap) {
         super(quotientMap);
     }
 
-    public DivisionResult(HashMap<Integer, Integer> quotientMap, HashMap<Integer, Integer> remainderMap) {
+    public DivisionResult(Map<Integer, Integer> quotientMap, Map<Integer, Integer> remainderMap) {
         super(quotientMap);
         this.remainder = new Polynomial(remainderMap).clean();
     }

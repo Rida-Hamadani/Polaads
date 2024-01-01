@@ -1,17 +1,19 @@
 package com.polynomials;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.polynomials.Polynomials.*;
 
 public class Polynomial {
-    private HashMap<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
+    private Map<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
 
     public Polynomial() {
         this.pow_cof = new HashMap<>();
         this.pow_cof.put(0, 0);
     }
 
-    public Polynomial(HashMap<Integer, Integer> pow_cof) {
+    public Polynomial(Map<Integer, Integer> pow_cof) {
         this.pow_cof = pow_cof;
     }
 
@@ -20,20 +22,21 @@ public class Polynomial {
     }
 
     protected Polynomial clean() {
-        pow_cof.values().removeIf(v -> v == 0);
+        pow_cof = pow_cof.entrySet().stream().filter(k -> k.getValue() != 0)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        if (pow_cof.size() == 0) {
+        if (pow_cof.isEmpty()) {
             pow_cof.put(0, 0);
         }
 
         return this;
     }
 
-    public HashMap<Integer, Integer> getMap() {
+    public Map<Integer, Integer> getMap() {
         return clean().pow_cof;
     }
 
-    public Polynomial setMap(HashMap<Integer, Integer> newMap) {
+    public Polynomial setMap(Map<Integer, Integer> newMap) {
         pow_cof = newMap;
         return this;
     }
@@ -83,11 +86,11 @@ public class Polynomial {
     }
 
     public Boolean isSquareFree() {
-        return Polynomial.gcd(this, getDerivative()).getMap().equals(ONE);
+        return Polynomial.gcd(this, getDerivative()).equals(ONE);
     }
 
     public Polynomial add(Polynomial that) {
-        that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, (a, b) -> a + b));
+        that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, Integer::sum));
         return clean();
     }
 
@@ -106,7 +109,7 @@ public class Polynomial {
 
     public Polynomial multiply(Polynomial that) {
         HashMap<Integer, Integer> product = new HashMap<>();
-        that.pow_cof.forEach((k1, v1) -> pow_cof.forEach((k2, v2) -> product.merge(k1 + k2, v1 * v2, (a, b) -> a + b)));
+        that.pow_cof.forEach((k1, v1) -> pow_cof.forEach((k2, v2) -> product.merge(k1 + k2, v1 * v2, Integer::sum)));
         return setMap(product).clean();
     }
 
@@ -117,7 +120,7 @@ public class Polynomial {
         pow_cof.forEach((k, v) -> {
             if (v % scalar != 0) {
                 throw new IllegalArgumentException(
-                        scalar + " doesn't divide all the coefficients of " + toString() + ".");
+                        scalar + " doesn't divide all the coefficients of " + this + ".");
             }
         });
         pow_cof.forEach((k, v) -> pow_cof.put(k, v / scalar));
@@ -125,10 +128,10 @@ public class Polynomial {
     }
 
     public DivisionResult divide(Polynomial that) {
-        Integer deg1 = getDegree(),
+        int deg1 = getDegree(),
                 deg2 = that.getDegree(),
                 quotientDegree = deg1 - deg2;
-        HashMap<Integer, Integer> quotientMap = new HashMap<>(),
+        Map<Integer, Integer> quotientMap = new HashMap<>(),
                 remainderMap = new HashMap<>(),
                 tempMap = Converter.deepCopy(pow_cof);
 
@@ -160,10 +163,10 @@ public class Polynomial {
     }
 
     public DivisionResult pseudoDivide(Polynomial that) {
-        HashMap<Integer, Integer> quotientMap = new HashMap<>(),
+        Map<Integer, Integer> quotientMap = new HashMap<>(),
                 remainderMap = new HashMap<>(),
                 tempMap = Converter.deepCopy(pow_cof);
-        Integer deg1 = getDegree(),
+        int deg1 = getDegree(),
                 deg2 = that.getDegree(),
                 quotientDegree = deg1 - deg2;
 
@@ -190,7 +193,7 @@ public class Polynomial {
     }
 
     public static Polynomial gcd(Polynomial u, Polynomial v) {
-        Integer deg1 = u.getDegree(),
+        int deg1 = u.getDegree(),
                 deg2 = v.getDegree(),
                 d = NumberTheory.gcd(u.getContent(), v.getContent()),
                 g = 1,
@@ -212,10 +215,8 @@ public class Polynomial {
             delta = uCopy.getDegree() - vCopy.getDegree();
 
             temp.setMap(Converter.deepCopy(uCopy.getMap())); // so thatCopy isn't changed during division
-            System.out.println("uCopy  " + uCopy);
-            System.out.println("vCopy  " + vCopy);
             Polynomial remainder = temp.pseudoDivide(vCopy).getRemainder();
-            System.out.println("Remainder  " + remainder);
+
             if (remainder.getMap().equals(ZERO.getMap())) {
                 break;
             }
@@ -238,18 +239,30 @@ public class Polynomial {
     }
 
     @Override
-    public String toString() {
-        TreeMap<Integer, Integer> sorted = new TreeMap<>();
-        StringJoiner sj = new StringJoiner(" ");
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Polynomial that = (Polynomial) o;
+        return Objects.equals(pow_cof, that.pow_cof);
+    }
 
-        sorted.putAll(clean().pow_cof);
+    @Override
+    public int hashCode() {
+        return Objects.hash(pow_cof);
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner sj = new StringJoiner(" ");
+        Map<Integer, Integer> sorted = new TreeMap<>(clean().getMap());
+
         sorted.forEach((k, v) -> {
             StringBuilder sb = new StringBuilder(4);
 
-            if (sj.length() > 0 || v < 0 && v != 0) {
+            if ((sj.length() > 0 || v < 0) && v != 0) {
                 sj.add(v > 0 ? "+" : "-");
             }
-            if (v != 1 && v != -1 || k == 0) {
+            if ((v != 1 && v != -1) || k == 0) {
                 sb.append(Math.abs(v));
             }
             if (k != 0) {

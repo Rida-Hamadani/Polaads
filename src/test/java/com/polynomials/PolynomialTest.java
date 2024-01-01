@@ -64,7 +64,7 @@ public class PolynomialTest {
 
     @Test
     public void testGetPrimitive() {
-        HashMap<Integer, Integer> resMap1 = Converter.deepCopy(p1.getMap());
+        Map<Integer, Integer> resMap1 = Converter.deepCopy(p1.getMap());
         assertEquals(p4.getPrimitive().getMap(), new Polynomial().getMap());
         assertEquals(p1.multiply(2).getPrimitive().getMap(), resMap1);
     }
@@ -138,7 +138,7 @@ public class PolynomialTest {
         };
 
         assertEquals(p2.subtract(p1).getMap(), resMap);
-        assertEquals(p1.subtract(p1).getMap(), p4.getMap());
+        assertEquals(p1.subtract(p1), p4);
         assertEquals(p5.subtract(p3).getMap(), resMap2);
     }
 
@@ -196,7 +196,7 @@ public class PolynomialTest {
 
     @Test
     public void testScalarDivision() {
-        HashMap<Integer, Integer> resMap1 = Converter.deepCopy(p1.getMap());
+        Map<Integer, Integer> resMap1 = Converter.deepCopy(p1.getMap());
         assertEquals(p1.divide(1).getMap(), resMap1);
     }
 
@@ -325,7 +325,7 @@ public class PolynomialTest {
 
     @Test
     public void testGcd() {
-        HashMap<Integer, Integer> res1 = Converter.deepCopy(p1.getMap());
+        Map<Integer, Integer> res1 = Converter.deepCopy(p1.getMap());
         Polynomial gcd1 = Polynomial.gcd(p1, p2);
         
         assertEquals(Polynomial.gcd(p1, p4).getMap(), res1);
