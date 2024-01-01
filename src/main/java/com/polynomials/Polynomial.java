@@ -1,20 +1,10 @@
 package com.polynomials;
 
 import java.util.*;
+import static com.polynomials.Polynomials.*;
 
 public class Polynomial {
     private HashMap<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
-    private final HashMap<Integer, Integer> zero = new HashMap<>() {
-        {
-            put(0, 0);
-        }
-    };
-
-    private final HashMap<Integer, Integer> one = new HashMap<>() {
-        {
-            put(0, 1);
-        }
-    };
 
     public Polynomial() {
         this.pow_cof = new HashMap<>();
@@ -50,7 +40,7 @@ public class Polynomial {
 
     public Integer getDegree() {
         clean();
-        return pow_cof.equals(zero)
+        return pow_cof.equals(ZERO.getMap())
                 ? Integer.MIN_VALUE
                 : Collections.max(pow_cof.keySet());
     }
@@ -64,7 +54,7 @@ public class Polynomial {
     }
 
     public Integer getContent() {
-        if (zero.equals(pow_cof)) {
+        if (ZERO.getMap().equals(pow_cof)) {
             return 0;
         }
 
@@ -73,7 +63,7 @@ public class Polynomial {
     }
 
     public Polynomial getPrimitive() {
-        if (zero.equals(pow_cof)) {
+        if (ZERO.getMap().equals(pow_cof)) {
             return new Polynomial();
         }
         Polynomial primitive = new Polynomial(Converter.deepCopy(pow_cof));
@@ -93,7 +83,7 @@ public class Polynomial {
     }
 
     public Boolean isSquareFree() {
-        return Polynomial.gcd(this, getDerivative()).getMap().equals(one);
+        return Polynomial.gcd(this, getDerivative()).getMap().equals(ONE);
     }
 
     public Polynomial add(Polynomial that) {
@@ -142,10 +132,10 @@ public class Polynomial {
                 remainderMap = new HashMap<>(),
                 tempMap = Converter.deepCopy(pow_cof);
 
-        if (pow_cof.equals(zero)) {
-            return new DivisionResult(zero, zero);
+        if (pow_cof.equals(ZERO.getMap())) {
+            return new DivisionResult(ZERO.getMap(), ZERO.getMap());
         }
-        if (that.pow_cof.equals(zero)) {
+        if (that.pow_cof.equals(ZERO.getMap())) {
             throw new IllegalArgumentException("Cannot divide by zero.");
         }
         if (deg1 < deg2) {
@@ -177,8 +167,8 @@ public class Polynomial {
                 deg2 = that.getDegree(),
                 quotientDegree = deg1 - deg2;
 
-        if (pow_cof.equals(zero)) {
-            return new DivisionResult(zero, zero);
+        if (pow_cof.equals(ZERO.getMap())) {
+            return new DivisionResult(ZERO.getMap(), ZERO.getMap());
         }
         if (deg1 < deg2) {
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
@@ -226,11 +216,11 @@ public class Polynomial {
             System.out.println("vCopy  " + vCopy);
             Polynomial remainder = temp.pseudoDivide(vCopy).getRemainder();
             System.out.println("Remainder  " + remainder);
-            if (remainder.getDegree() == Integer.MIN_VALUE) {
+            if (remainder.getMap().equals(ZERO.getMap())) {
                 break;
             }
             if (remainder.getDegree() == 0) {
-                vCopy.setMap(Polynomials.one.getMap());
+                vCopy.setMap(ONE.getMap());
                 break;
             }
 

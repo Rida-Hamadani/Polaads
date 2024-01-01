@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class Polynomials {
     private static final HashMap<Integer, Integer> zeroMap = new HashMap<>() {
         {
-            put(0, 1);
+            put(0, 0);
         }
     };
     private static final HashMap<Integer, Integer> oneMap = new HashMap<>() {
@@ -14,6 +14,6 @@ public class Polynomials {
         }
     };
 
-    public static final Polynomial zero = new Polynomial(zeroMap);
-    public static final Polynomial one = new Polynomial(oneMap);
+    public static final Polynomial ZERO = new Polynomial(zeroMap);
+    public static final Polynomial ONE = new Polynomial(oneMap);
 }

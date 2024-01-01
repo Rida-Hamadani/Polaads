@@ -19,18 +19,18 @@ public class PolynomialTest {
 
     @BeforeEach
     public void generatePolynomials() {
-        HashMap<Integer, Integer> map1 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> map1 = new HashMap<>() {
             {
                 put(1, 1);
                 put(2, 0);
             }
         };
-        HashMap<Integer, Integer> map2 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> map2 = new HashMap<>() {
             {
                 put(2, 1);
             }
         };
-        HashMap<Integer, Integer> map3 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> map3 = new HashMap<>() {
             {
                 put(0, 5);
                 put(1, 1);
@@ -44,7 +44,7 @@ public class PolynomialTest {
         p2 = new Polynomial(map2);
         p3 = new Polynomial(map3);
         p4 = new Polynomial();
-        p5 = new Polynomial(new ArrayList<Integer>(Arrays.asList(0)), new ArrayList<Integer>(Arrays.asList(1)));
+        p5 = new Polynomial(new ArrayList<>(List.of(0)), new ArrayList<>(List.of(1)));
     }
 
     @Test
@@ -98,13 +98,13 @@ public class PolynomialTest {
 
     @Test
     public void testAddition() {
-        HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap1 = new HashMap<>() {
             {
                 put(1, 1);
                 put(2, 1);
             }
         };
-        HashMap<Integer, Integer> resMap2 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap2 = new HashMap<>() {
             {
                 put(0, 5);
                 put(1, 2);
@@ -121,13 +121,13 @@ public class PolynomialTest {
 
     @Test
     public void testSubtract() {
-        HashMap<Integer, Integer> resMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap = new HashMap<>() {
             {
                 put(1, -1);
                 put(2, 1);
             }
         };
-        HashMap<Integer, Integer> resMap2 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap2 = new HashMap<>() {
             {
                 put(0, -4);
                 put(1, -1);
@@ -144,12 +144,12 @@ public class PolynomialTest {
 
     @Test
     public void testScalarMultiplication() {
-        HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap1 = new HashMap<>() {
             {
                 put(1, 10);
             }
         };
-        HashMap<Integer, Integer> resMap2 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap2 = new HashMap<>() {
             {
                 put(0, 10);
                 put(1, 2);
@@ -158,7 +158,7 @@ public class PolynomialTest {
                 put(6, 16);
             }
         };
-        HashMap<Integer, Integer> resMap3 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap3 = new HashMap<>() {
             {
                 put(0, 1);
             }
@@ -177,7 +177,7 @@ public class PolynomialTest {
 
     @Test
     public void testPolynomialMultiplication() {
-        HashMap<Integer, Integer> resMap1 = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> resMap1 = new HashMap<>() {
             {
                 put(2, 5);
                 put(3, 1);
@@ -202,7 +202,7 @@ public class PolynomialTest {
 
     @Test
     public void testPolynomialDivision() {
-        HashMap<Integer, Integer> divMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> divMap = new HashMap<>() {
             {
                 put(0, 13);
                 put(1, -11);
@@ -211,7 +211,7 @@ public class PolynomialTest {
                 put(4, 8);
             }
         };
-        HashMap<Integer, Integer> remMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> remMap = new HashMap<>() {
             {
                 put(0, 5);
                 put(1, -12);
@@ -235,7 +235,7 @@ public class PolynomialTest {
 
     @Test
     public void testPseudoPolynomialDivision() {
-        HashMap<Integer, Integer> uMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> uMap = new HashMap<>() {
             {
                 put(8, 1);
                 put(6, 1);
@@ -246,7 +246,7 @@ public class PolynomialTest {
                 put(0, -5);
             }
         };
-        HashMap<Integer, Integer> vMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> vMap = new HashMap<>() {
             {
                 put(6, 3);
                 put(4, 5);
@@ -255,13 +255,13 @@ public class PolynomialTest {
                 put(0, 21);
             }
         };
-        HashMap<Integer, Integer> divMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> divMap = new HashMap<>() {
             {
                 put(0, -6);
                 put(2, 9);
             }
         };
-        HashMap<Integer, Integer> remMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> remMap = new HashMap<>() {
             {
                 put(4, -15);
                 put(2, 3);
@@ -296,7 +296,7 @@ public class PolynomialTest {
 
     @Test
     public void testPolynomialDivisionExceptions() {
-        HashMap<Integer, Integer> remMap = new HashMap<Integer, Integer>() {
+        HashMap<Integer, Integer> remMap = new HashMap<>() {
             {
                 put(0, 5);
                 put(1, -12);
