@@ -29,7 +29,7 @@ public class Polynomial {
         this(Converter.connect(powers, coefs));
     }
 
-    private Polynomial clean() {
+    protected Polynomial clean() {
         pow_cof.values().removeIf(v -> v == 0);
 
         if (pow_cof.size() == 0) {
@@ -53,6 +53,14 @@ public class Polynomial {
         return pow_cof.equals(zero)
                 ? Integer.MIN_VALUE
                 : Collections.max(pow_cof.keySet());
+    }
+
+    public Integer getLeadingCoefficient() {
+        Integer deg = getDegree();
+        if (deg == Integer.MIN_VALUE) {
+            return 0;
+        }
+        return pow_cof.get(deg);
     }
 
     public Integer getContent() {
@@ -84,10 +92,9 @@ public class Polynomial {
         return Math.abs(getContent()) == 1;
     }
 
-    // public Boolean isSquareFree() {
-    //     Polynomial der = getDerivative();
-    //     return der.gcd(this).getMap().equals(one);
-    // }
+    public Boolean isSquareFree() {
+        return Polynomial.gcd(this, getDerivative()).getMap().equals(one);
+    }
 
     public Polynomial add(Polynomial that) {
         that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, (a, b) -> a + b));
@@ -173,9 +180,6 @@ public class Polynomial {
         if (pow_cof.equals(zero)) {
             return new DivisionResult(zero, zero);
         }
-        if (that.pow_cof.equals(zero)) {
-            throw new IllegalArgumentException("Cannot divide by zero.");
-        }
         if (deg1 < deg2) {
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
         }
@@ -183,10 +187,9 @@ public class Polynomial {
         for (int i = quotientDegree; i > -1; --i) {
             quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0)
                     * NumberTheory.power(that.pow_cof.getOrDefault(deg2, 0), i));
-            for (int j = deg2 + i - 1; j > - 1; --j) {
+            for (int j = deg2 + i - 1; j > -1; --j) {
                 tempMap.put(j, that.pow_cof.get(deg2) * tempMap.getOrDefault(j, 0)
                         - tempMap.getOrDefault(i + deg2, 0) * that.pow_cof.getOrDefault(j - i, 0));
-                System.out.println(tempMap.toString());
             }
         }
         for (int i = 0; i < deg2; ++i) {
@@ -196,52 +199,53 @@ public class Polynomial {
         return new DivisionResult(quotientMap, remainderMap);
     }
 
-    // public Polynomial gcd(Polynomial that) {
+    public static Polynomial gcd(Polynomial u, Polynomial v) {
+        Integer deg1 = u.getDegree(),
+                deg2 = v.getDegree(),
+                d = NumberTheory.gcd(u.getContent(), v.getContent()),
+                g = 1,
+                h = 1,
+                delta;
 
-    //     DivisionResult copyThat = new DivisionResult(Converter.deepCopy(that.pow_cof));
-    //     Polynomial temp = new Polynomial();
-    //     Integer d = NumberTheory.gcd(getContent(), that.getContent()),
-    //             g = 1,
-    //             h = 1,
-    //             delta;
+        if (deg1 == Integer.MIN_VALUE || deg2 == Integer.MIN_VALUE) {
+            return u.add(v);
+        }
+        
+        Polynomial temp = new Polynomial();
+        DivisionResult uCopy = new DivisionResult(Converter.deepCopy(deg1 >= deg2 ? u.getMap() : v.getMap()));
+        DivisionResult vCopy = new DivisionResult(Converter.deepCopy(deg1 < deg2 ? u.getMap() : v.getMap()));
 
-    //     this.setMap(getPrimitive().getMap());
-    //     copyThat.setMap(that.getPrimitive().getMap());
+        uCopy.setMap(uCopy.getPrimitive().getMap());
+        vCopy.setMap(vCopy.getPrimitive().getMap());
 
-    //     if (getDegree() - that.getDegree() > 0) {
-    //         this.setMap(copyThat.gcd(this).getMap());
-    //         return this;
-    //     }
+        for (;;) {
+            delta = uCopy.getDegree() - vCopy.getDegree();
 
-    //     for (;;) {
+            temp.setMap(Converter.deepCopy(uCopy.getMap())); // so thatCopy isn't changed during division
+            System.out.println("uCopy  " + uCopy);
+            System.out.println("vCopy  " + vCopy);
+            Polynomial remainder = temp.pseudoDivide(vCopy).getRemainder();
+            System.out.println("Remainder  " + remainder);
+            if (remainder.getDegree() == Integer.MIN_VALUE) {
+                break;
+            }
+            if (remainder.getDegree() == 0) {
+                vCopy.setMap(Polynomials.one.getMap());
+                break;
+            }
 
-    //         delta = getDegree() - that.getDegree();
+            uCopy.setMap(vCopy.getMap());
+            vCopy.setMap(remainder.divide(g * NumberTheory.power(h, delta)).getMap());
+            g = uCopy.getLeadingCoefficient();
+            int oldh = h;
+            h = NumberTheory.power(g, delta);
+            for (int c = 0; c < delta; ++c) {
+                h /= oldh;
+            }
+        }
 
-    //         temp.setMap(Converter.deepCopy(copyThat.getMap())); // so thatCopy isn't changed during division
-    //         System.out.println(this);
-    //         System.out.println(that);
-    //         Polynomial remainder = temp.pseudoDivide(this).getRemainder();
-
-    //         if (remainder.getMap().equals(zero)) {
-    //             break;
-    //         }
-    //         if (remainder.getDegree() == 0) {
-    //             copyThat.setMap(one);
-    //             break;
-    //         }
-
-    //         setMap(copyThat.getMap());
-    //         copyThat.setMap(remainder.divide(g * NumberTheory.power(h, delta)).getMap());
-    //         g = pow_cof.get(getDegree());
-    //         int oldh = h;
-    //         h = NumberTheory.power(g, delta);
-    //         for (int c = 0; c < delta; ++c) {
-    //             h /= oldh;
-    //         }
-    //     }
-
-    //     return copyThat.getPrimitive().multiply(d);
-    // }
+        return vCopy.getPrimitive().multiply(d);
+    }
 
     @Override
     public String toString() {
@@ -268,22 +272,5 @@ public class Polynomial {
         });
 
         return sj.toString();
-    }
-
-    public class DivisionResult extends Polynomial {
-        private Polynomial remainder;
-
-        public DivisionResult(HashMap<Integer, Integer> quotientMap) {
-            super(quotientMap);
-        }
-
-        public DivisionResult(HashMap<Integer, Integer> quotientMap, HashMap<Integer, Integer> remainderMap) {
-            super(quotientMap);
-            this.remainder = new Polynomial(remainderMap).clean();
-        }
-
-        public Polynomial getRemainder() {
-            return remainder;
-        }
     }
 }

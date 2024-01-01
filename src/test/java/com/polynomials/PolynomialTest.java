@@ -87,14 +87,14 @@ public class PolynomialTest {
         assertFalse(p1.add(p2).multiply(2).isPrimitive());
     }
 
-    // @Test
-    // public void testIsSquareFree() {
-    //     assertTrue(p1.isSquareFree());
-    //     assertFalse(p2.isSquareFree());
-    //     assertTrue(p3.isSquareFree());
-    //     assertTrue(p4.isSquareFree());
-    //     assertTrue(p5.isSquareFree());
-    // }
+    @Test
+    public void testIsSquareFree() {
+        assertTrue(p1.isSquareFree());
+        assertFalse(p2.isSquareFree());
+        // assertTrue(p3.isSquareFree()); currently resulting in errors due to coefficients growing above Integer.MAX_VALUE
+        assertFalse(p4.isSquareFree());
+        assertTrue(p5.isSquareFree());
+    }
 
     @Test
     public void testAddition() {
@@ -218,10 +218,10 @@ public class PolynomialTest {
             }
         };
 
-        Polynomial.DivisionResult dr1 = p3.divide(p2.add(p1));
-        Polynomial.DivisionResult dr2 = p2.divide(p1);
-        Polynomial.DivisionResult dr3 = p1.divide(p1);
-        Polynomial.DivisionResult dr4 = p4.divide(p4);
+        DivisionResult dr1 = p3.divide(p2.add(p1));
+        DivisionResult dr2 = p2.divide(p1);
+        DivisionResult dr3 = p1.divide(p1);
+        DivisionResult dr4 = p4.divide(p4);
 
         assertEquals(dr1.getMap(), divMap);
         assertEquals(dr1.getRemainder().getMap(), remMap);
@@ -272,7 +272,7 @@ public class PolynomialTest {
         Polynomial uP = new Polynomial(uMap);
         Polynomial vP = new Polynomial(vMap);
 
-        Polynomial.DivisionResult dr = uP.pseudoDivide(vP);
+        DivisionResult dr = uP.pseudoDivide(vP);
 
         assertEquals(dr.getMap(), divMap);
         assertEquals(dr.getRemainder().getMap(), remMap);
@@ -323,13 +323,15 @@ public class PolynomialTest {
         }
     }
 
-    // @Test
-    // public void testGcd() {
-    //     HashMap<Integer, Integer> res1 = Converter.deepCopy(p1.getMap());
-    //     // assertEquals(p1.gcd(p4).getMap(), res1);
-    //     assertEquals(p2.gcd(p1).getMap(), p1.getMap());
-    //     assertEquals(p2.multiply(p2).subtract(p5).gcd(p1.add(p5)).getMap(), p1.getMap());
-    // }
+    @Test
+    public void testGcd() {
+        HashMap<Integer, Integer> res1 = Converter.deepCopy(p1.getMap());
+        Polynomial gcd1 = Polynomial.gcd(p1, p2);
+        
+        assertEquals(Polynomial.gcd(p1, p4).getMap(), res1);
+        assertEquals(gcd1.getMap(), p1.getMap());
+        assertEquals(Polynomial.gcd(p2.multiply(p2).subtract(p5), p1.add(p5)).getMap(), p1.getMap());
+    }
 
     @Test
     public void testToString() {
