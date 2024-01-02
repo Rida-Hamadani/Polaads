@@ -57,6 +57,15 @@ public class PolynomialTest {
     }
 
     @Test
+    public void testGetLeadingCoefficient() {
+        assertEquals(p1.getLeadingCoefficient(), 1);
+        assertEquals(p2.getLeadingCoefficient(), 1);
+        assertEquals(p3.getLeadingCoefficient(), 8);
+        assertEquals(p4.getLeadingCoefficient(), 0);
+        assertEquals(p5.getLeadingCoefficient(), 1);
+    }
+
+    @Test
     public void testGetContent() {
         assertEquals(p4.getContent(), 0);
         assertEquals(p1.multiply(2).getContent(), 2);
@@ -176,7 +185,7 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testPolynomialMultiplication() {
+     public void testPolynomialMultiplication() {
         HashMap<Integer, Integer> resMap1 = new HashMap<>() {
             {
                 put(2, 5);
@@ -271,11 +280,13 @@ public class PolynomialTest {
 
         Polynomial uP = new Polynomial(uMap);
         Polynomial vP = new Polynomial(vMap);
-
         DivisionResult dr = uP.pseudoDivide(vP);
+        DivisionResult dr2 = p4.pseudoDivide(p4);
 
         assertEquals(dr.getMap(), divMap);
         assertEquals(dr.getRemainder().getMap(), remMap);
+        assertEquals(dr2.getMap(), p4.getMap());
+        assertEquals(dr2.getRemainder(), p4);
     }
 
     @Test
@@ -321,16 +332,46 @@ public class PolynomialTest {
             assertEquals("The leading coefficient of the dividend should be divisible by that of the divisor.",
                     e.getMessage());
         }
+        try {
+            p5.pseudoDivide(p1);
+            assertEquals(1, 0);
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot divide by larger polynomial.", e.getMessage());
+        }
     }
 
     @Test
     public void testGcd() {
+        Map<Integer, Integer> uMap = new HashMap<>() {
+            {
+                put(4, 1);
+            }
+        };
+        Map<Integer, Integer> vMap = new HashMap<>() {
+            {
+                put(2, 1);
+                put(1, 3);
+                put(0, 2);
+            }
+        };
+
+        Polynomial uP = new Polynomial(uMap);
+        Polynomial vP = new Polynomial(vMap);
         Map<Integer, Integer> res1 = Converter.deepCopy(p1.getMap());
-        Polynomial gcd1 = Polynomial.gcd(p1, p2);
-        
-        assertEquals(Polynomial.gcd(p1, p4).getMap(), res1);
-        assertEquals(gcd1.getMap(), p1.getMap());
-        assertEquals(Polynomial.gcd(p2.multiply(p2).subtract(p5), p1.add(p5)).getMap(), p1.getMap());
+        Polynomial gcd1 = Polynomial.gcd(uP.subtract(p2.multiply(2)).add(p5), vP);
+        Polynomial gcd2 = Polynomial.gcd(Polynomials.IDENTITY, p2);
+
+        assertEquals(gcd1, p1.add(p5).multiply(-1));
+        assertEquals(Polynomial.gcd(p1.multiply(-1).subtract(p5), p4).getMap(), res1);
+        assertEquals(gcd2.getMap(), p1.getMap());
+        assertEquals(Polynomial.gcd(p1.add(p5), Polynomials.IDENTITY), Polynomials.ONE);
+    }
+
+    @Test
+    public void testEquivalence() {
+        assertTrue(p4.hashCode() == Polynomials.ZERO.hashCode());
+        assertFalse(p1.equals(null));
+        assertFalse(p1.equals(1));
     }
 
     @Test

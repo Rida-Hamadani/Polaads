@@ -236,6 +236,8 @@ public class Polynomial {
         }
 
         return vCopy.getPrimitive().multiply(d);
+        // note that gcd of polynomials is unique up to a constant
+        // this constant difference could lead to confusion
     }
 
     @Override
