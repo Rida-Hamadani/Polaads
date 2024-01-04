@@ -49,4 +49,72 @@ class Matrix {
         }
         return sum;
     }
+
+    public List<Integer> getMultipliedColumn(Integer colIndex, Integer cnt) {
+        List<Integer> res = new ArrayList<>();
+        for (int i = 0; i < getRowsNumber(); ++i) {
+            res.add(cnt * get(i, colIndex));
+        }
+        return res;
+    }
+
+    public void divideColumn(Integer colIndex, Integer cnt) {
+        for (int i = 0; i < getRowsNumber(); ++i) {
+            set(i, colIndex, get(i, colIndex) / cnt);
+        }
+    }
+
+    public void addListToCol(List<Integer> fromCol, Integer toCol) {
+        for (int i = 0; i < getRowsNumber(); ++i) {
+            set(i, toCol, fromCol.get(i) + get(i, toCol));
+        }
+    }
+
+    public List<List<Integer>> getNullSpace() {
+        Integer n = getColsNumber();
+
+        if (!n.equals(getRowsNumber())) {
+            throw new IllegalArgumentException("Must be a square matrix.");
+        }
+
+        List<List<Integer>> nullVectors = new ArrayList<>();
+        List<Integer> cnts = new ArrayList<>();
+        boolean jExists;
+
+        for (int k = 0; k < n; ++k) {
+            cnts.add(-1);
+        }
+
+        for (int k = 0; k < n; ++k) {
+            jExists = false;
+            for (int j = 0; j < n; ++j) {
+                if (!get(k, j).equals(0) && cnts.get(j) < 0) {
+                    divideColumn(j, -get(k, j));
+                    for (int i = 0; i < n; ++i) {
+                        if (i == j) continue;
+                        addListToCol(getMultipliedColumn(j, get(k, i)), i);
+                    }
+                    cnts.set(j, k);
+                    jExists = true;
+                    break;
+                }
+            }
+            if (!jExists) {
+                List<Integer> nullVector = new ArrayList<>();
+                for (int j = 0; j < n; ++j) {
+                    Integer vj = 0;
+                    if (k == j) {
+                        vj = 1;
+                    }
+                    if (cnts.contains(j)) {
+                        vj = get(k, cnts.indexOf(j));
+                    }
+                    nullVector.add(vj);
+                }
+                nullVectors.add(nullVector);
+            }
+        }
+
+        return nullVectors;
+    }
 }
