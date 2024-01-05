@@ -30,4 +30,9 @@ public class NumberTheoryTest extends NumberTheory {
         assertEquals(gcd(arr4), 5);
         
     }
+
+    @Test
+    public void testGetModularInverse() {
+        assertEquals(getModularInverse(2, 13), 7);
+    }
 }

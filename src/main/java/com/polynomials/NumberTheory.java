@@ -40,4 +40,17 @@ public class NumberTheory {
 
         return pow;
     }
+
+    public static int getModularInverse(int a, int m) {
+        if (gcd(a, m) != 1) {
+            throw new IllegalArgumentException("Must be coprime.");
+        }
+        int x = 0;
+        while (x < m) {
+            if ((a * ++x) % m == 1) {
+                break;
+            }
+        }
+        return x;
+    }
 }

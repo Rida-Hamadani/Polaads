@@ -16,4 +16,20 @@ public class Converter {
         mapToCopy.forEach((k, v) -> newMap.put(Integer.valueOf(k), Integer.valueOf(v)));
         return newMap;
     }
+
+    public static List<List<Integer>> vectorToMatrix(int rowSize, int... elements) {
+        List<List<Integer>> matrix = new ArrayList<>();
+        int count = 0;
+        List<Integer> row = null;
+        while (count < elements.length) {
+            if (count % rowSize == 0) {
+                row = new ArrayList<>();
+            }
+            row.add(elements[count]);
+            if (count++ % rowSize == 0) {
+                matrix.add(row);
+            }
+        }
+        return matrix;
+    }
 }
