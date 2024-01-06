@@ -33,6 +33,8 @@ public class NumberTheoryTest extends NumberTheory {
 
     @Test
     public void testGetModularInverse() {
-        assertEquals(getModularInverse(2, 13), 7);
+        int a = -2;
+        assertEquals(getModularInverse(a, 13), 6);
+        assertEquals(-2, a);
     }
 }

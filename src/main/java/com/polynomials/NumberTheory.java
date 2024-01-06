@@ -42,8 +42,11 @@ public class NumberTheory {
     }
 
     public static int getModularInverse(int a, int m) {
+        while (a < 0) {
+            a += m;
+        }
         if (gcd(a, m) != 1) {
-            throw new IllegalArgumentException("Must be coprime.");
+            throw new IllegalArgumentException(a + " and " + m + " are not coprime.");
         }
         int x = 0;
         while (x < m) {

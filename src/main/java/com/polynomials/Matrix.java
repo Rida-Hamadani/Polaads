@@ -4,21 +4,34 @@ import java.util.*;
 
 class Matrix {
     private List<List<Integer>> matrix;
+    private int p;
 
     public Matrix() {
         this.matrix = new ArrayList<>();
     }
 
-    public List<List<Integer>> get2DArray() {
+    public Matrix(List<List<Integer>> matrix) {
+        this.matrix = matrix;
+    }
+
+    public int getMod() {
+        return p;
+    }
+
+    public void setMod(int p) {
+        this.p = p;
+    }
+
+    public List<List<Integer>> get2DList() {
         return matrix;
     }
 
     public Integer getRowsNumber() {
-        return get2DArray().size();
+        return get2DList().size();
     }
 
     public Integer getColsNumber() {
-        return get2DArray().isEmpty() ? 0 : get2DArray().get(0).size();
+        return get2DList().isEmpty() ? 0 : get2DList().get(0).size();
     }
 
     public Integer get(int i, int j) {
@@ -26,11 +39,12 @@ class Matrix {
     }
 
     public void set(int i, int j, int element) {
+        matrix.get(i).remove(j);
         matrix.get(i).add(j, element);
     }
 
     public Boolean isEmpty() {
-        return get2DArray().isEmpty();
+        return get2DList().isEmpty();
     }
 
     public Matrix add(Matrix that) {
@@ -50,27 +64,28 @@ class Matrix {
         return sum;
     }
 
-    public List<Integer> getMultipliedColumn(Integer colIndex, Integer cnt) {
+    // note that all the following subroutines are mod p
+    public List<Integer> getMultipliedColumn(int colIndex, int cnt) {
         List<Integer> res = new ArrayList<>();
         for (int i = 0; i < getRowsNumber(); ++i) {
-            res.add(cnt * get(i, colIndex));
+            res.add((cnt * get(i, colIndex)) % getMod());
         }
         return res;
     }
 
-    public void divideColumn(Integer colIndex, Integer cnt) {
+    public void replaceColumn(Integer colIndex, List<Integer> newCol) {
         for (int i = 0; i < getRowsNumber(); ++i) {
-            set(i, colIndex, get(i, colIndex) / cnt);
+            set(i, colIndex, newCol.get(i));
         }
     }
 
     public void addListToCol(List<Integer> fromCol, Integer toCol) {
         for (int i = 0; i < getRowsNumber(); ++i) {
-            set(i, toCol, fromCol.get(i) + get(i, toCol));
+            set(i, toCol, (fromCol.get(i) + get(i, toCol)) % getMod());
         }
     }
 
-    public List<List<Integer>> getNullSpace() {
+    public Matrix getKernelBasis() {
         Integer n = getColsNumber();
 
         if (!n.equals(getRowsNumber())) {
@@ -89,7 +104,7 @@ class Matrix {
             jExists = false;
             for (int j = 0; j < n; ++j) {
                 if (!get(k, j).equals(0) && cnts.get(j) < 0) {
-                    divideColumn(j, -get(k, j));
+                    replaceColumn(j, getMultipliedColumn(j, -NumberTheory.getModularInverse(get(k, j), getMod())));
                     for (int i = 0; i < n; ++i) {
                         if (i == j) continue;
                         addListToCol(getMultipliedColumn(j, get(k, i)), i);
@@ -115,6 +130,6 @@ class Matrix {
             }
         }
 
-        return nullVectors;
+        return new Matrix(nullVectors);
     }
 }
