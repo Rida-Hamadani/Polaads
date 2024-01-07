@@ -1,6 +1,6 @@
 Notice: Still under construction.
 
-# Polynomials
+# Polaads -- Polynomials as a Data Structure
 
 This package will facilitate computations related to polynomials.
 My main focus here is arithmetic computations, such as gcd and factorization.
