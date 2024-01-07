@@ -1,4 +1,6 @@
-package com.polynomials;
+package com.polaads.polynomials;
+
+import com.polaads.polynomials.Polynomial;
 
 import java.util.*;
 

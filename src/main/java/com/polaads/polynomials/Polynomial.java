@@ -1,9 +1,12 @@
-package com.polynomials;
+package com.polaads.polynomials;
+
+import com.polaads.utils.Converter;
+import com.polaads.arithmetic.NumberTheory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.polynomials.Polynomials.*;
+import static com.polaads.polynomials.Polynomials.*;
 
 public class Polynomial {
     private Map<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
@@ -238,6 +241,18 @@ public class Polynomial {
         return vCopy.getPrimitive().multiply(d);
         // note that gcd of polynomials is unique up to a constant
         // this constant difference could lead to confusion
+    }
+
+    public List<Polynomial> factorizeBerlekamp(Integer prime) {
+        if (!isSquareFree()) {
+            throw new IllegalArgumentException(this + " is not square free.");
+        }
+        if (!NumberTheory.isPrime(prime)) {
+            throw new IllegalArgumentException(prime + " is not prime.");
+        }
+
+        List<Polynomial> factors = new ArrayList<Polynomial>();
+        return factors;
     }
 
     @Override

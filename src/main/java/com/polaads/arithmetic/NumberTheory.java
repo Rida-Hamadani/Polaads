@@ -1,4 +1,4 @@
-package com.polynomials;
+package com.polaads.arithmetic;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;

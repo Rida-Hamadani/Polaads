@@ -1,7 +1,9 @@
-package com.polynomials;
+package com.polaads;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.polaads.matrices.Matrix;
+import com.polaads.utils.Converter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import java.util.*;

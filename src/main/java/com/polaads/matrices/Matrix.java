@@ -1,8 +1,10 @@
-package com.polynomials;
+package com.polaads.matrices;
+
+import com.polaads.arithmetic.NumberTheory;
 
 import java.util.*;
 
-class Matrix {
+public class Matrix {
     private List<List<Integer>> matrix;
     private int p;
 
