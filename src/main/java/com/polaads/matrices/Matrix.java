@@ -1,30 +1,22 @@
 package com.polaads.matrices;
 
-import com.polaads.arithmetic.NumberTheory;
+import com.polaads.algebra.Field;
 
 import java.util.*;
 
-public class Matrix {
-    private List<List<Integer>> matrix;
-    private int p;
+public class Matrix<T extends Field> {
+    private List<List<T>> matrix;
 
     public Matrix() {
         this.matrix = new ArrayList<>();
     }
 
-    public Matrix(List<List<Integer>> matrix) {
+    public Matrix(List<List<T>> matrix) {
         this.matrix = matrix;
     }
 
-    public int getMod() {
-        return p;
-    }
 
-    public void setMod(int p) {
-        this.p = p;
-    }
-
-    public List<List<Integer>> get2DList() {
+    public List<List<T>> get2DList() {
         return matrix;
     }
 
@@ -36,11 +28,11 @@ public class Matrix {
         return get2DList().isEmpty() ? 0 : get2DList().get(0).size();
     }
 
-    public Integer get(int i, int j) {
+    public T get(int i, int j) {
         return matrix.get(i).get(j);
     }
 
-    public void set(int i, int j, int element) {
+    public void set(int i, int j, T element) {
         matrix.get(i).remove(j);
         matrix.get(i).add(j, element);
     }
@@ -60,30 +52,29 @@ public class Matrix {
         Matrix sum = new Matrix();
         for(int i = 0; i < getRowsNumber(); ++i) {
             for(int j = 0; j < getColsNumber(); ++j) {
-                sum.set(i, j, get(i, j) + that.get(i, j));
+                sum.set(i, j, (Field) get(i, j).add(that.get(i, j)));
             }
         }
         return sum;
     }
 
-    // note that all the following subroutines are mod p
-    public List<Integer> getMultipliedColumn(int colIndex, int cnt) {
-        List<Integer> res = new ArrayList<>();
+    public List<T> getMultipliedColumn(int colIndex, T cnt) {
+        List<T> res = new ArrayList<>();
         for (int i = 0; i < getRowsNumber(); ++i) {
-            res.add((cnt * get(i, colIndex)) % getMod());
+            res.add((T) cnt.multiply(get(i, colIndex)));
         }
         return res;
     }
 
-    public void replaceColumn(Integer colIndex, List<Integer> newCol) {
+    public void replaceColumn(int colIndex, List<T> newCol) {
         for (int i = 0; i < getRowsNumber(); ++i) {
             set(i, colIndex, newCol.get(i));
         }
     }
 
-    public void addListToCol(List<Integer> fromCol, Integer toCol) {
+    public void addListToCol(List<T> fromCol, int toCol) {
         for (int i = 0; i < getRowsNumber(); ++i) {
-            set(i, toCol, (fromCol.get(i) + get(i, toCol)) % getMod());
+            set(i, toCol, fromCol.get(i).add(get(i, toCol)));
         }
     }
 
@@ -94,7 +85,7 @@ public class Matrix {
             throw new IllegalArgumentException("Must be a square matrix.");
         }
 
-        List<List<Integer>> nullVectors = new ArrayList<>();
+        List<List<T>> nullVectors = new ArrayList<>();
         List<Integer> cnts = new ArrayList<>();
         boolean jExists;
 
@@ -105,8 +96,8 @@ public class Matrix {
         for (int k = 0; k < n; ++k) {
             jExists = false;
             for (int j = 0; j < n; ++j) {
-                if (!get(k, j).equals(0) && cnts.get(j) < 0) {
-                    replaceColumn(j, getMultipliedColumn(j, -NumberTheory.getModularInverse(get(k, j), getMod())));
+                if (!get(k, j).equals(T.getAdditiveNeutral()) && cnts.get(j) < 0) {
+                    replaceColumn(j, getMultipliedColumn(j, (get(k, j).multiplicativeInverse()).additiveInverse()));
                     for (int i = 0; i < n; ++i) {
                         if (i == j) continue;
                         addListToCol(getMultipliedColumn(j, get(k, i)), i);
@@ -117,11 +108,11 @@ public class Matrix {
                 }
             }
             if (!jExists) {
-                List<Integer> nullVector = new ArrayList<>();
+                List<T> nullVector = new ArrayList<>();
                 for (int j = 0; j < n; ++j) {
-                    Integer vj = 0;
+                    T vj = T.getAdditiveNeutral();
                     if (k == j) {
-                        vj = 1;
+                        vj = T.getMultiplicativeNeutral();
                     }
                     if (cnts.contains(j)) {
                         vj = get(k, cnts.indexOf(j));
