@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.polaads.polynomials.DivisionResult;
-import com.polaads.polynomials.Polynomial;
-import com.polaads.polynomials.Polynomials;
-import com.polaads.utils.Converter;
+import com.rida.polaads.polynomials.DivisionResult;
+import com.rida.polaads.polynomials.Polynomial;
+import com.rida.polaads.polynomials.Polynomials;
+import com.rida.polaads.utils.Converter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import java.util.*;

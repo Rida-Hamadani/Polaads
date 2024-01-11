@@ -1,12 +1,10 @@
-package com.polaads.polynomials;
+package com.rida.polaads.polynomials;
 
-import com.polaads.utils.Converter;
-import com.polaads.arithmetic.NumberTheory;
+import com.rida.polaads.utils.Converter;
+import com.rida.polaads.arithmetic.NumberTheory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.polaads.polynomials.Polynomials.*;
 
 public class Polynomial {
     private Map<Integer, Integer> pow_cof; // done this way to support sparse polynomials efficiently
@@ -46,7 +44,7 @@ public class Polynomial {
 
     public Integer getDegree() {
         clean();
-        return pow_cof.equals(ZERO.getMap())
+        return pow_cof.equals(Polynomials.ZERO.getMap())
                 ? Integer.MIN_VALUE
                 : Collections.max(pow_cof.keySet());
     }
@@ -60,7 +58,7 @@ public class Polynomial {
     }
 
     public Integer getContent() {
-        if (ZERO.getMap().equals(pow_cof)) {
+        if (Polynomials.ZERO.getMap().equals(pow_cof)) {
             return 0;
         }
 
@@ -69,7 +67,7 @@ public class Polynomial {
     }
 
     public Polynomial getPrimitive() {
-        if (ZERO.getMap().equals(pow_cof)) {
+        if (Polynomials.ZERO.getMap().equals(pow_cof)) {
             return new Polynomial();
         }
         Polynomial primitive = new Polynomial(Converter.deepCopy(pow_cof));
@@ -89,7 +87,7 @@ public class Polynomial {
     }
 
     public Boolean isSquareFree() {
-        return Polynomial.gcd(this, getDerivative()).equals(ONE);
+        return Polynomial.gcd(this, getDerivative()).equals(Polynomials.ONE);
     }
 
     public Polynomial add(Polynomial that) {
@@ -138,10 +136,10 @@ public class Polynomial {
                 remainderMap = new HashMap<>(),
                 tempMap = Converter.deepCopy(pow_cof);
 
-        if (pow_cof.equals(ZERO.getMap())) {
-            return new DivisionResult(ZERO.getMap(), ZERO.getMap());
+        if (pow_cof.equals(Polynomials.ZERO.getMap())) {
+            return new DivisionResult(Polynomials.ZERO.getMap(), Polynomials.ZERO.getMap());
         }
-        if (that.pow_cof.equals(ZERO.getMap())) {
+        if (that.pow_cof.equals(Polynomials.ZERO.getMap())) {
             throw new IllegalArgumentException("Cannot divide by zero.");
         }
         if (deg1 < deg2) {
@@ -173,8 +171,8 @@ public class Polynomial {
                 deg2 = that.getDegree(),
                 quotientDegree = deg1 - deg2;
 
-        if (pow_cof.equals(ZERO.getMap())) {
-            return new DivisionResult(ZERO.getMap(), ZERO.getMap());
+        if (pow_cof.equals(Polynomials.ZERO.getMap())) {
+            return new DivisionResult(Polynomials.ZERO.getMap(), Polynomials.ZERO.getMap());
         }
         if (deg1 < deg2) {
             throw new IllegalArgumentException("Cannot divide by larger polynomial.");
@@ -220,11 +218,11 @@ public class Polynomial {
             temp.setMap(Converter.deepCopy(uCopy.getMap())); // so thatCopy isn't changed during division
             Polynomial remainder = temp.pseudoDivide(vCopy).getRemainder();
 
-            if (remainder.getMap().equals(ZERO.getMap())) {
+            if (remainder.getMap().equals(Polynomials.ZERO.getMap())) {
                 break;
             }
             if (remainder.getDegree() == 0) {
-                vCopy.setMap(ONE.getMap());
+                vCopy.setMap(Polynomials.ONE.getMap());
                 break;
             }
 
@@ -243,17 +241,17 @@ public class Polynomial {
         // this constant difference could lead to confusion
     }
 
-    public List<Polynomial> factorizeBerlekamp(Integer prime) {
-        if (!isSquareFree()) {
-            throw new IllegalArgumentException(this + " is not square free.");
-        }
-        if (!NumberTheory.isPrime(prime)) {
-            throw new IllegalArgumentException(prime + " is not prime.");
-        }
-
-        List<Polynomial> factors = new ArrayList<Polynomial>();
-        return factors;
-    }
+//    public List<Polynomial> factorizeBerlekamp(Integer prime) {
+//        if (!isSquareFree()) {
+//            throw new IllegalArgumentException(this + " is not square free.");
+//        }
+//        if (!NumberTheory.isPrime(prime)) {
+//            throw new IllegalArgumentException(prime + " is not prime.");
+//        }
+//
+//        List<Polynomial> factors = new ArrayList<>();
+//        return factors;
+//    }
 
     @Override
     public boolean equals(Object o) {

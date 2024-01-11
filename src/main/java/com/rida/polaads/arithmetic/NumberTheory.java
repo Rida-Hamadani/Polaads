@@ -1,4 +1,4 @@
-package com.polaads.arithmetic;
+package com.rida.polaads.arithmetic;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;

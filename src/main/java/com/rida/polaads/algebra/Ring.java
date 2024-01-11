@@ -1,4 +1,4 @@
-package com.polaads.algebra;
+package com.rida.polaads.algebra;
 
 public abstract class Ring {
     private static Ring additiveNeutral;

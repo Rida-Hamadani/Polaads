@@ -1,6 +1,6 @@
-package com.polaads.matrices;
+package com.rida.polaads.matrices;
 
-import com.polaads.algebra.Field;
+import com.rida.polaads.algebra.Field;
 
 import java.util.*;
 

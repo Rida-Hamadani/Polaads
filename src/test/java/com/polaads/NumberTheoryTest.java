@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.polaads.arithmetic.NumberTheory;
+import com.rida.polaads.arithmetic.NumberTheory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 

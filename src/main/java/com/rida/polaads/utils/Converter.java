@@ -1,4 +1,4 @@
-package com.polaads.utils;
+package com.rida.polaads.utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
