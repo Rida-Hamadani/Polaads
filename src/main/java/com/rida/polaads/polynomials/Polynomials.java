@@ -9,9 +9,9 @@ public class Polynomials {
 
     private static final Map<Integer, Integer> idMap = Map.of(1, 1);
 
-    public static final Polynomial ZERO = new Polynomial(zeroMap);
+    public static final RingPolynomial ZERO = new RingPolynomial(zeroMap);
 
-    public static final Polynomial ONE = new Polynomial(oneMap);
+    public static final RingPolynomial ONE = new RingPolynomial(oneMap);
 
-    public static final Polynomial IDENTITY = new Polynomial(idMap);
+    public static final RingPolynomial IDENTITY = new RingPolynomial(idMap);
 }

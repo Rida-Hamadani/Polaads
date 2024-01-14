@@ -2,8 +2,8 @@ package com.rida.polaads.polynomials;
 
 import java.util.*;
 
-public class DivisionResult extends Polynomial {
-    private Polynomial remainder;
+public class DivisionResult extends RingPolynomial {
+    private RingPolynomial remainder;
 
     public DivisionResult(Map<Integer, Integer> quotientMap) {
         super(quotientMap);
@@ -11,10 +11,10 @@ public class DivisionResult extends Polynomial {
 
     public DivisionResult(Map<Integer, Integer> quotientMap, Map<Integer, Integer> remainderMap) {
         super(quotientMap);
-        this.remainder = new Polynomial(remainderMap).clean();
+        this.remainder = new RingPolynomial(remainderMap).clean();
     }
 
-    public Polynomial getRemainder() {
+    public RingPolynomial getRemainder() {
         return remainder;
     }
 }

@@ -1,25 +1,25 @@
 package com.rida.polaads.algebra;
 
-public abstract class Ring {
-    private static Ring additiveNeutral;
+public abstract class Ring<T> {
+    private T additiveNeutral;
 
-    private static Ring multiplicativeNeutral;
+    private T multiplicativeNeutral;
 
-    public static <T extends Ring> T getAdditiveNeutral() {
-        return (T) additiveNeutral;
+    public T getAdditiveNeutral() {
+        return additiveNeutral;
     }
 
-    public static <T extends Ring> T getMultiplicativeNeutral() {
-        return (T) multiplicativeNeutral;
+    public T getMultiplicativeNeutral() {
+        return multiplicativeNeutral;
     }
 
-    public abstract <T extends Ring> T add(T that);
+    public abstract T add(T x, T y);
 
-    public abstract <T extends Ring> T multiply(T that);
+    public abstract T multiply(T x, T y);
 
-    public abstract <T extends Ring> T additiveInverse();
+    public abstract T getAdditiveInverse(T x);
 
-    public <T extends Ring> T subtract(T that) {
-        return add(that.additiveInverse());
+    public T subtract(T x, T y) {
+        return add(x, getAdditiveInverse(y));
     }
 }

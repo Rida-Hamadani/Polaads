@@ -42,7 +42,8 @@ public class NumberTheory {
     }
 
     public static int getModularInverse(int a, int m) {
-        while (a < 0) {
+        if (a < 0) {
+            a %= m;
             a += m;
         }
         if (gcd(a, m) != 1) {
