@@ -1,22 +1,23 @@
 package com.rida.polaads.polynomials;
 
 import com.rida.polaads.algebra.Ring;
+import com.rida.polaads.algebra.RingElement;
 import com.rida.polaads.utils.Converter;
 import com.rida.polaads.arithmetic.NumberTheory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RingPolynomial<T> extends Ring<T> {
+public class RingPolynomial<T extends RingElement> implements RingElement {
     private Map<Integer, T> pow_cof; // done this way to support sparse polynomials efficiently
-
-    public RingPolynomial() {
-        this.pow_cof = new HashMap<>();
-        this.pow_cof.put(0, getAdditiveNeutral());
-    }
+    private Ring ring;
 
     public RingPolynomial(Map<Integer, T> pow_cof) {
+        if (pow_cof.isEmpty()) {
+            throw new IllegalArgumentException("Polynomial can't be empty");
+        }
         this.pow_cof = pow_cof;
+        this.ring = pow_cof.entrySet().iterator().next().getValue().getSet();
     }
 
     protected RingPolynomial<T> clean() {
@@ -24,7 +25,7 @@ public class RingPolynomial<T> extends Ring<T> {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (pow_cof.isEmpty()) {
-            pow_cof.put(0, getAdditiveNeutral());
+            pow_cof.put(0, (T) getRing().getAdditiveNeutral());
         }
 
         return this;
@@ -32,6 +33,10 @@ public class RingPolynomial<T> extends Ring<T> {
 
     public Map<Integer, T> getMap() {
         return clean().pow_cof;
+    }
+
+    public Ring getRing() {
+        return ring;
     }
 
     public RingPolynomial<T> setMap(Map<Integer, T> newMap) {
@@ -49,28 +54,9 @@ public class RingPolynomial<T> extends Ring<T> {
     public T getLeadingCoefficient() {
         Integer deg = getDegree();
         if (deg == Integer.MIN_VALUE) {
-            return getAdditiveNeutral();
+            return (T) ring.getAdditiveNeutral();
         }
         return pow_cof.get(deg);
-    }
-
-    public T getContent() {
-        if (Polynomials.ZERO.getMap().equals(pow_cof)) {
-            return getAdditiveNeutral();
-        }
-
-        // int sign = pow_cof.get(getDegree()) > 0 ? 1 : -1;
-        // return sign * NumberTheory.gcd(new ArrayList<>(pow_cof.values()));
-        return gcd(new ArrayList<>(pow_cof.values()));
-    }
-
-    public RingPolynomial getPrimitive() {
-        if (Polynomials.ZERO.getMap().equals(pow_cof)) {
-            return new RingPolynomial();
-        }
-        RingPolynomial primitive = new RingPolynomial(Converter.deepCopy(pow_cof));
-        primitive.divide(getContent());
-        return primitive;
     }
 
     public RingPolynomial getDerivative() {
@@ -80,16 +66,32 @@ public class RingPolynomial<T> extends Ring<T> {
         return der.clean();
     }
 
-    public Boolean isPrimitive() {
-        return Math.abs(getContent()) == 1;
+    @Override
+    public Ring getSet() {
+        return new Ring() {
+            @Override
+            public RingElement getAdditiveNeutral() {
+                return Polynomials.ZERO;
+            }
+
+            @Override
+            public RingElement getMultiplicativeNeutral() {
+                return Polynomials.ONE;
+            }
+        };
     }
 
     public Boolean isSquareFree() {
         return RingPolynomial.gcd(this, getDerivative()).equals(Polynomials.ONE);
     }
 
-    public RingPolynomial add(RingPolynomial that) {
-        that.pow_cof.forEach((k, v) -> pow_cof.merge(k, v, Integer::sum));
+    @Override
+    public RingPolynomial add(RingElement that) {
+        if (!(that instanceof Polynomial)) {
+            throw new IllegalArgumentException("Must be a polynomial");
+        }
+        RingPolynomial<T> thatPoly = (RingPolynomial<T>) that;
+        thatPoly.getMap().forEach((k, v) -> pow_cof.merge((Integer) k, (T) v, (a, b) -> (T) a.add(b)));
         return clean();
     }
 
@@ -101,14 +103,20 @@ public class RingPolynomial<T> extends Ring<T> {
         return clean();
     }
 
+    @Override
     public RingPolynomial multiply(Integer scalar) {
-        pow_cof.forEach((k, v) -> pow_cof.put(k, scalar * v));
+        pow_cof.forEach((k, v) -> pow_cof.put(k, (T) v.multiply(scalar)));
         return clean();
     }
 
-    public RingPolynomial multiply(RingPolynomial that) {
-        HashMap<Integer, Integer> product = new HashMap<>();
-        that.pow_cof.forEach((k1, v1) -> pow_cof.forEach((k2, v2) -> product.merge(k1 + k2, v1 * v2, Integer::sum)));
+    @Override
+    public RingPolynomial multiply(RingElement that) {
+        if (!(that instanceof Polynomial)) {
+            throw new IllegalArgumentException("Must be a polynomial");
+        }
+        RingPolynomial<T> thatPoly = (RingPolynomial<T>) that;
+        HashMap<Integer, T> product = new HashMap<>();
+        thatPoly.getMap().forEach((k1, v1) -> pow_cof.forEach((k2, v2) -> product.merge(k1 + k2, (T) v1.multiply(v2), (a,b) -> (T) a.add(b))));
         return setMap(product).clean();
     }
 
@@ -202,7 +210,7 @@ public class RingPolynomial<T> extends Ring<T> {
         if (deg1 == Integer.MIN_VALUE || deg2 == Integer.MIN_VALUE) {
             return u.add(v);
         }
-        
+
         RingPolynomial temp = new RingPolynomial();
         DivisionResult uCopy = new DivisionResult(Converter.deepCopy(deg1 >= deg2 ? u.getMap() : v.getMap()));
         DivisionResult vCopy = new DivisionResult(Converter.deepCopy(deg1 < deg2 ? u.getMap() : v.getMap()));
@@ -210,7 +218,7 @@ public class RingPolynomial<T> extends Ring<T> {
         uCopy.setMap(uCopy.getPrimitive().getMap());
         vCopy.setMap(vCopy.getPrimitive().getMap());
 
-        for (;;) {
+        for (; ; ) {
             delta = uCopy.getDegree() - vCopy.getDegree();
 
             temp.setMap(Converter.deepCopy(uCopy.getMap())); // so thatCopy isn't changed during division
@@ -238,7 +246,6 @@ public class RingPolynomial<T> extends Ring<T> {
         // note that gcd of polynomials is unique up to a constant
         // this constant difference could lead to confusion
     }
-
 //    public List<Polynomial> factorizeBerlekamp(Integer prime) {
 //        if (!isSquareFree()) {
 //            throw new IllegalArgumentException(this + " is not square free.");
@@ -249,6 +256,7 @@ public class RingPolynomial<T> extends Ring<T> {
 //
 //        List<Polynomial> factors = new ArrayList<>();
 //        return factors;
+
 //    }
 
     @Override

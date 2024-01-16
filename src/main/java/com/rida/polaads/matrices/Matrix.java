@@ -1,18 +1,24 @@
 package com.rida.polaads.matrices;
 
 import com.rida.polaads.algebra.Field;
+import com.rida.polaads.algebra.FieldElement;
 
 import java.util.*;
 
-public class Matrix<T extends Field> {
+public class Matrix<T extends FieldElement> {
     private List<List<T>> matrix;
+    private Field<T> field;
 
     public Matrix() {
         this.matrix = new ArrayList<>();
     }
 
     public Matrix(List<List<T>> matrix) {
+        if (matrix.isEmpty() || matrix.get(0).isEmpty()) {
+            throw new IllegalArgumentException("Matrix is empty");
+        }
         this.matrix = matrix;
+        this.field = (Field<T>) matrix.get(0).get(0).getSet();
     }
 
 
@@ -52,7 +58,7 @@ public class Matrix<T extends Field> {
         Matrix sum = new Matrix();
         for(int i = 0; i < getRowsNumber(); ++i) {
             for(int j = 0; j < getColsNumber(); ++j) {
-                sum.set(i, j, (Field) get(i, j).add(that.get(i, j)));
+                sum.set(i, j, (FieldElement) get(i, j).add(that.get(i, j)));
             }
         }
         return sum;
@@ -74,7 +80,7 @@ public class Matrix<T extends Field> {
 
     public void addListToCol(List<T> fromCol, int toCol) {
         for (int i = 0; i < getRowsNumber(); ++i) {
-            set(i, toCol, fromCol.get(i).add(get(i, toCol)));
+            set(i, toCol, (T) fromCol.get(i).add(get(i, toCol)));
         }
     }
 
@@ -96,8 +102,8 @@ public class Matrix<T extends Field> {
         for (int k = 0; k < n; ++k) {
             jExists = false;
             for (int j = 0; j < n; ++j) {
-                if (!get(k, j).equals(T.getAdditiveNeutral()) && cnts.get(j) < 0) {
-                    replaceColumn(j, getMultipliedColumn(j, (get(k, j).multiplicativeInverse()).additiveInverse()));
+                if (!get(k, j).equals(field.getAdditiveNeutral()) && cnts.get(j) < 0) {
+                    replaceColumn(j, getMultipliedColumn(j, (T) (get(k, j).multiplicativeInverse()).getAdditiveInverse()));
                     for (int i = 0; i < n; ++i) {
                         if (i == j) continue;
                         addListToCol(getMultipliedColumn(j, get(k, i)), i);
@@ -110,9 +116,9 @@ public class Matrix<T extends Field> {
             if (!jExists) {
                 List<T> nullVector = new ArrayList<>();
                 for (int j = 0; j < n; ++j) {
-                    T vj = T.getAdditiveNeutral();
+                    T vj = field.getAdditiveNeutral();
                     if (k == j) {
-                        vj = T.getMultiplicativeNeutral();
+                        vj = field.getMultiplicativeNeutral();
                     }
                     if (cnts.contains(j)) {
                         vj = get(k, cnts.indexOf(j));
