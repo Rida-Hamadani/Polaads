@@ -1,5 +1,8 @@
 package com.rida.polaads.polynomials;
 
+import com.rida.polaads.algebra.Ring;
+import com.rida.polaads.algebra.RingElement;
+
 import java.util.Map;
 
 public class Polynomials {

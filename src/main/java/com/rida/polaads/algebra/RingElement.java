@@ -3,7 +3,7 @@ package com.rida.polaads.algebra;
 import com.rida.polaads.polynomials.RingPolynomial;
 
 public interface RingElement {
-    Ring getSet();
+    Ring<RingElement> getSet();
 
     RingElement getAdditiveNeutral();
 
@@ -15,5 +15,7 @@ public interface RingElement {
 
     RingElement multiply(Integer scalar);
 
-    RingElement getAdditiveInverse();
+    default RingElement getAdditiveInverse() {
+        return multiply(-1);
+    }
 }

@@ -2,22 +2,25 @@ package com.rida.polaads.polynomials;
 
 import com.rida.polaads.algebra.Ring;
 import com.rida.polaads.algebra.RingElement;
-import com.rida.polaads.utils.Converter;
-import com.rida.polaads.arithmetic.NumberTheory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class RingPolynomial<T extends RingElement> implements RingElement {
-    private Map<Integer, T> pow_cof; // done this way to support sparse polynomials efficiently
-    private Ring ring;
+    protected Map<Integer, T> pow_cof; // done this way to support sparse polynomials efficiently
+    private Ring<T> ring;
 
     public RingPolynomial(Map<Integer, T> pow_cof) {
         if (pow_cof.isEmpty()) {
             throw new IllegalArgumentException("Polynomial can't be empty");
         }
         this.pow_cof = pow_cof;
-        this.ring = pow_cof.entrySet().iterator().next().getValue().getSet();
+        this.ring = (Ring<T>) pow_cof.entrySet().iterator().next().getValue().getSet();
+    }
+
+    public RingPolynomial(Ring<T> ring) {
+        pow_cof = new HashMap<>();
+        pow_cof.put(0, ring.getAdditiveNeutral());
     }
 
     protected RingPolynomial<T> clean() {
@@ -25,7 +28,7 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (pow_cof.isEmpty()) {
-            pow_cof.put(0, (T) getRing().getAdditiveNeutral());
+            pow_cof.put(0, getRing().getAdditiveNeutral());
         }
 
         return this;
@@ -35,7 +38,7 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
         return clean().pow_cof;
     }
 
-    public Ring getRing() {
+    public Ring<T> getRing() {
         return ring;
     }
 
@@ -59,9 +62,9 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
         return pow_cof.get(deg);
     }
 
-    public RingPolynomial getDerivative() {
-        RingPolynomial der = new RingPolynomial();
-        pow_cof.forEach(((k, v) -> der.pow_cof.put(k - 1, v * k)));
+    public RingPolynomial<T> getDerivative() {
+        RingPolynomial<T> der = new RingPolynomial<>(getRing());
+        pow_cof.forEach(((k, v) -> der.pow_cof.put(k - 1, (T) v.multiply(k))));
         der.pow_cof.remove(-1);
         return der.clean();
     }
@@ -81,8 +84,14 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
         };
     }
 
-    public Boolean isSquareFree() {
-        return RingPolynomial.gcd(this, getDerivative()).equals(Polynomials.ONE);
+    @Override
+    public RingPolynomial getAdditiveNeutral() {
+        return Polynomials.ZERO;
+    }
+
+    @Override
+    public RingPolynomial getMultiplicativeNeutral() {
+        return Polynomials.ONE;
     }
 
     @Override
@@ -97,7 +106,7 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
 
     public RingPolynomial subtract(RingPolynomial that) {
         if (equals(that))
-            return new RingPolynomial();
+            return new RingPolynomial(getRing());
         add(that.multiply(-1));
         that.multiply(-1); // so that isn't mutated
         return clean();
@@ -120,132 +129,7 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
         return setMap(product).clean();
     }
 
-    public RingPolynomial divide(Integer scalar) {
-        if (scalar == 0) {
-            throw new IllegalArgumentException("Cannot divide by zero.");
-        }
-        pow_cof.forEach((k, v) -> {
-            if (v % scalar != 0) {
-                throw new IllegalArgumentException(
-                        scalar + " doesn't divide all the coefficients of " + this + ".");
-            }
-        });
-        pow_cof.forEach((k, v) -> pow_cof.put(k, v / scalar));
-        return this.clean();
-    }
 
-    public DivisionResult divide(RingPolynomial that) {
-        int deg1 = getDegree(),
-                deg2 = that.getDegree(),
-                quotientDegree = deg1 - deg2;
-        Map<Integer, Integer> quotientMap = new HashMap<>(),
-                remainderMap = new HashMap<>(),
-                tempMap = Converter.deepCopy(pow_cof);
-
-        if (pow_cof.equals(Polynomials.ZERO.getMap())) {
-            return new DivisionResult(Polynomials.ZERO.getMap(), Polynomials.ZERO.getMap());
-        }
-        if (that.pow_cof.equals(Polynomials.ZERO.getMap())) {
-            throw new IllegalArgumentException("Cannot divide by zero.");
-        }
-        if (deg1 < deg2) {
-            throw new IllegalArgumentException("Cannot divide by larger polynomial.");
-        }
-        if (pow_cof.get(deg1) % that.pow_cof.get(deg2) != 0) {
-            throw new IllegalArgumentException(
-                    "The leading coefficient of the dividend should be divisible by that of the divisor.");
-        }
-
-        for (int i = quotientDegree; i > -1; --i) {
-            quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0) / that.pow_cof.getOrDefault(deg2, 0));
-            for (int j = deg2 + i - 1; j > i - 1; --j) {
-                tempMap.put(j, tempMap.getOrDefault(j, 0) - quotientMap.get(i) * that.pow_cof.getOrDefault(j - i, 0));
-            }
-        }
-        for (int i = 0; i < deg2; ++i) {
-            remainderMap.put(i, tempMap.getOrDefault(i, 0));
-        }
-
-        return new DivisionResult(quotientMap, remainderMap);
-    }
-
-    public DivisionResult pseudoDivide(RingPolynomial that) {
-        Map<Integer, Integer> quotientMap = new HashMap<>(),
-                remainderMap = new HashMap<>(),
-                tempMap = Converter.deepCopy(pow_cof);
-        int deg1 = getDegree(),
-                deg2 = that.getDegree(),
-                quotientDegree = deg1 - deg2;
-
-        if (pow_cof.equals(Polynomials.ZERO.getMap())) {
-            return new DivisionResult(Polynomials.ZERO.getMap(), Polynomials.ZERO.getMap());
-        }
-        if (deg1 < deg2) {
-            throw new IllegalArgumentException("Cannot divide by larger polynomial.");
-        }
-
-        for (int i = quotientDegree; i > -1; --i) {
-            quotientMap.put(i, tempMap.getOrDefault(i + deg2, 0)
-                    * NumberTheory.power(that.pow_cof.getOrDefault(deg2, 0), i));
-            for (int j = deg2 + i - 1; j > -1; --j) {
-                tempMap.put(j, that.pow_cof.get(deg2) * tempMap.getOrDefault(j, 0)
-                        - tempMap.getOrDefault(i + deg2, 0) * that.pow_cof.getOrDefault(j - i, 0));
-            }
-        }
-        for (int i = 0; i < deg2; ++i) {
-            remainderMap.put(i, tempMap.getOrDefault(i, 0));
-        }
-
-        return new DivisionResult(quotientMap, remainderMap);
-    }
-
-    public static RingPolynomial gcd(RingPolynomial u, RingPolynomial v) {
-        int deg1 = u.getDegree(),
-                deg2 = v.getDegree(),
-                d = NumberTheory.gcd(u.getContent(), v.getContent()),
-                g = 1,
-                h = 1,
-                delta;
-
-        if (deg1 == Integer.MIN_VALUE || deg2 == Integer.MIN_VALUE) {
-            return u.add(v);
-        }
-
-        RingPolynomial temp = new RingPolynomial();
-        DivisionResult uCopy = new DivisionResult(Converter.deepCopy(deg1 >= deg2 ? u.getMap() : v.getMap()));
-        DivisionResult vCopy = new DivisionResult(Converter.deepCopy(deg1 < deg2 ? u.getMap() : v.getMap()));
-
-        uCopy.setMap(uCopy.getPrimitive().getMap());
-        vCopy.setMap(vCopy.getPrimitive().getMap());
-
-        for (; ; ) {
-            delta = uCopy.getDegree() - vCopy.getDegree();
-
-            temp.setMap(Converter.deepCopy(uCopy.getMap())); // so thatCopy isn't changed during division
-            RingPolynomial remainder = temp.pseudoDivide(vCopy).getRemainder();
-
-            if (remainder.getMap().equals(Polynomials.ZERO.getMap())) {
-                break;
-            }
-            if (remainder.getDegree() == 0) {
-                vCopy.setMap(Polynomials.ONE.getMap());
-                break;
-            }
-
-            uCopy.setMap(vCopy.getMap());
-            vCopy.setMap(remainder.divide(g * NumberTheory.power(h, delta)).getMap());
-            g = uCopy.getLeadingCoefficient();
-            int oldh = h;
-            h = NumberTheory.power(g, delta);
-            for (int c = 0; c < delta; ++c) {
-                h /= oldh;
-            }
-        }
-
-        return vCopy.getPrimitive().multiply(d);
-        // note that gcd of polynomials is unique up to a constant
-        // this constant difference could lead to confusion
-    }
 //    public List<Polynomial> factorizeBerlekamp(Integer prime) {
 //        if (!isSquareFree()) {
 //            throw new IllegalArgumentException(this + " is not square free.");
@@ -275,16 +159,16 @@ public class RingPolynomial<T extends RingElement> implements RingElement {
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(" ");
-        Map<Integer, Integer> sorted = new TreeMap<>(clean().getMap());
+        Map<Integer, T> sorted = new TreeMap<>(clean().getMap());
 
         sorted.forEach((k, v) -> {
             StringBuilder sb = new StringBuilder(4);
 
-            if ((sj.length() > 0 || v < 0) && v != 0) {
-                sj.add(v > 0 ? "+" : "-");
+            if ((sj.length() > 0) && !v.equals(getRing().getAdditiveNeutral())) {
+                sj.add("+");
             }
-            if ((v != 1 && v != -1) || k == 0) {
-                sb.append(Math.abs(v));
+            if ((!v.equals(getRing().getMultiplicativeNeutral())) || k == 0) {
+                sb.append(v);
             }
             if (k != 0) {
                 sb.append('x');
